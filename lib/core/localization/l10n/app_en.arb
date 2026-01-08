@@ -1,0 +1,95 @@
+{
+  "@@locale": "en",
+  "appTitle": "ServiceSentinel",
+  "@appTitle": {
+    "description": "Application title"
+  },
+  "dashboard": "Dashboard",
+  "services": "Services",
+  "incidents": "Incidents",
+  "settings": "Settings",
+
+  "statusHealthy": "Healthy",
+  "statusWarning": "Warning",
+  "statusDown": "Down",
+  "statusUnknown": "Unknown",
+
+  "incidentOpen": "Open",
+  "incidentAcknowledged": "Acknowledged",
+  "incidentResolved": "Resolved",
+
+  "severityLow": "Low",
+  "severityMedium": "Medium",
+  "severityHigh": "High",
+  "severityCritical": "Critical",
+
+  "serviceCreateTitle": "Register Service",
+  "serviceEditTitle": "Edit Service",
+  "serviceNameLabel": "Service Name",
+  "serviceDescriptionLabel": "Description",
+  "serviceEndpointLabel": "Endpoint URL",
+  "serviceHttpMethodLabel": "HTTP Method",
+  "serviceTypeLabel": "Service Type",
+  "serviceHeadersLabel": "Headers",
+  "serviceExpectedStatusCodesLabel": "Expected Status Codes",
+  "serviceTimeoutLabel": "Timeout (seconds)",
+  "serviceCheckIntervalLabel": "Check Interval (seconds)",
+  "serviceFailureThresholdLabel": "Failure Threshold",
+
+  "buttonSave": "Save",
+  "buttonCancel": "Cancel",
+  "buttonDelete": "Delete",
+  "buttonEdit": "Edit",
+  "buttonRefresh": "Refresh",
+  "buttonCheckNow": "Check Now",
+  "buttonActivate": "Activate",
+  "buttonDeactivate": "Deactivate",
+  "buttonAcknowledge": "Acknowledge",
+  "buttonResolve": "Resolve",
+  "buttonRequestAnalysis": "Request AI Analysis",
+
+  "overviewTotalServices": "Total Services",
+  "overviewActiveServices": "Active Services",
+  "overviewHealthyServices": "Healthy",
+  "overviewServicesDown": "Down",
+  "overviewOpenIncidents": "Open Incidents",
+
+  "recentChecks": "Recent Checks",
+  "activeIncidents": "Active Incidents",
+  "healthCheckHistory": "Health Check History",
+  "statistics": "Statistics",
+
+  "uptimePercentage": "Uptime",
+  "avgLatency": "Avg Latency",
+  "totalChecks": "Total Checks",
+  "successfulChecks": "Successful",
+  "failedChecks": "Failed",
+
+  "aiAnalysis": "AI Analysis",
+  "rootCause": "Root Cause",
+  "debugChecklist": "Debug Checklist",
+  "suggestedActions": "Suggested Actions",
+  "confidence": "Confidence",
+
+  "theme": "Theme",
+  "themeWhite": "White",
+  "themeBlack": "Black",
+  "themeBlue": "Blue",
+
+  "language": "Language",
+  "languageEnglish": "English",
+  "languageKorean": "한국어",
+
+  "emptyServices": "No services yet",
+  "emptyServicesDescription": "Add your first service to start monitoring",
+  "emptyIncidents": "No incidents",
+  "emptyIncidentsDescription": "All services are healthy",
+
+  "errorLoadingData": "Error loading data",
+  "errorNetwork": "Network error. Please check your connection",
+  "errorServer": "Server error. Please try again later",
+
+  "loading": "Loading...",
+  "pullToRefresh": "Pull to refresh",
+  "lastUpdated": "Last updated"
+}

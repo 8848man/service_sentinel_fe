@@ -1,0 +1,92 @@
+{
+  "@@locale": "ko",
+  "appTitle": "서비스센티널",
+  "dashboard": "대시보드",
+  "services": "서비스",
+  "incidents": "장애",
+  "settings": "설정",
+
+  "statusHealthy": "정상",
+  "statusWarning": "경고",
+  "statusDown": "중단",
+  "statusUnknown": "알 수 없음",
+
+  "incidentOpen": "열림",
+  "incidentAcknowledged": "확인됨",
+  "incidentResolved": "해결됨",
+
+  "severityLow": "낮음",
+  "severityMedium": "중간",
+  "severityHigh": "높음",
+  "severityCritical": "심각",
+
+  "serviceCreateTitle": "서비스 등록",
+  "serviceEditTitle": "서비스 수정",
+  "serviceNameLabel": "서비스 이름",
+  "serviceDescriptionLabel": "설명",
+  "serviceEndpointLabel": "엔드포인트 URL",
+  "serviceHttpMethodLabel": "HTTP 메서드",
+  "serviceTypeLabel": "서비스 유형",
+  "serviceHeadersLabel": "헤더",
+  "serviceExpectedStatusCodesLabel": "예상 상태 코드",
+  "serviceTimeoutLabel": "타임아웃 (초)",
+  "serviceCheckIntervalLabel": "체크 간격 (초)",
+  "serviceFailureThresholdLabel": "실패 임계값",
+
+  "buttonSave": "저장",
+  "buttonCancel": "취소",
+  "buttonDelete": "삭제",
+  "buttonEdit": "수정",
+  "buttonRefresh": "새로고침",
+  "buttonCheckNow": "지금 확인",
+  "buttonActivate": "활성화",
+  "buttonDeactivate": "비활성화",
+  "buttonAcknowledge": "확인",
+  "buttonResolve": "해결",
+  "buttonRequestAnalysis": "AI 분석 요청",
+
+  "overviewTotalServices": "전체 서비스",
+  "overviewActiveServices": "활성 서비스",
+  "overviewHealthyServices": "정상",
+  "overviewServicesDown": "중단",
+  "overviewOpenIncidents": "진행 중인 장애",
+
+  "recentChecks": "최근 체크",
+  "activeIncidents": "활성 장애",
+  "healthCheckHistory": "상태 체크 기록",
+  "statistics": "통계",
+
+  "uptimePercentage": "가동률",
+  "avgLatency": "평균 지연시간",
+  "totalChecks": "총 체크 수",
+  "successfulChecks": "성공",
+  "failedChecks": "실패",
+
+  "aiAnalysis": "AI 분석",
+  "rootCause": "근본 원인",
+  "debugChecklist": "디버그 체크리스트",
+  "suggestedActions": "제안 조치",
+  "confidence": "신뢰도",
+
+  "theme": "테마",
+  "themeWhite": "화이트",
+  "themeBlack": "블랙",
+  "themeBlue": "블루",
+
+  "language": "언어",
+  "languageEnglish": "English",
+  "languageKorean": "한국어",
+
+  "emptyServices": "서비스가 없습니다",
+  "emptyServicesDescription": "첫 번째 서비스를 추가하여 모니터링을 시작하세요",
+  "emptyIncidents": "장애가 없습니다",
+  "emptyIncidentsDescription": "모든 서비스가 정상입니다",
+
+  "errorLoadingData": "데이터 로딩 오류",
+  "errorNetwork": "네트워크 오류. 연결을 확인하세요",
+  "errorServer": "서버 오류. 나중에 다시 시도하세요",
+
+  "loading": "로딩 중...",
+  "pullToRefresh": "당겨서 새로고침",
+  "lastUpdated": "마지막 업데이트"
+}
