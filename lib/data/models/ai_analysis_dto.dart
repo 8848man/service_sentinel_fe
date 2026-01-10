@@ -31,11 +31,11 @@ class AIAnalysisDto {
   @JsonKey(name: 'model_used')
   final String modelUsed;
   @JsonKey(name: 'prompt_tokens')
-  final int promptTokens;
+  final int? promptTokens;
   @JsonKey(name: 'completion_tokens')
-  final int completionTokens;
+  final int? completionTokens;
   @JsonKey(name: 'total_cost_usd')
-  final double totalCostUsd;
+  final double? totalCostUsd;
   @JsonKey(name: 'root_cause_hypothesis')
   final String rootCauseHypothesis;
   @JsonKey(name: 'confidence_score')

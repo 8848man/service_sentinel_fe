@@ -70,68 +70,71 @@ class IncidentDetailViewModel extends StateNotifier<IncidentDetailState> {
   Future<bool> acknowledgeIncident(int incidentId) async {
     final result = await _acknowledgeIncidentUseCase(incidentId);
 
-    return result.fold(
-      (failure) => false,
-      (_) {
-        // Reload incident detail to get updated data
-        loadIncidentDetail(incidentId);
-        return true;
-      },
-    );
+    return result.fold((failure) => false, (_) {
+      // Reload incident detail to get updated data
+      loadIncidentDetail(incidentId);
+      return true;
+    });
   }
 
   /// Resolve incident
   Future<bool> resolveIncident(int incidentId) async {
     final result = await _resolveIncidentUseCase(incidentId);
 
-    return result.fold(
-      (failure) => false,
-      (_) {
-        // Reload incident detail to get updated data
-        loadIncidentDetail(incidentId);
-        return true;
-      },
-    );
+    return result.fold((failure) => false, (_) {
+      // Reload incident detail to get updated data
+      loadIncidentDetail(incidentId);
+      return true;
+    });
   }
 
   /// Request AI analysis
-  Future<bool> requestAIAnalysis(int incidentId, {bool forceReanalyze = false}) async {
+  Future<bool> requestAIAnalysis(
+    int incidentId, {
+    bool forceReanalyze = false,
+  }) async {
     final result = await _requestAIAnalysisUseCase(
       incidentId,
       forceReanalyze: forceReanalyze,
     );
 
-    return result.fold(
-      (failure) => false,
-      (_) {
-        // Reload incident detail to get the new AI analysis
-        loadIncidentDetail(incidentId);
-        return true;
-      },
-    );
+    print('test001, result is $result');
+    return result.fold((failure) => false, (_) {
+      // Reload incident detail to get the new AI analysis
+      loadIncidentDetail(incidentId);
+      return true;
+    });
   }
 }
 
 /// Provider for Incident Detail ViewModel
 /// This is a family provider that takes an incident ID
-final incidentDetailViewModelProvider = StateNotifierProvider.family<
-    IncidentDetailViewModel, IncidentDetailState, int>((ref, incidentId) {
-  final getIncidentsUseCase = ref.watch(getIncidentsUseCaseProvider);
-  final getAIAnalysisUseCase = ref.watch(getAIAnalysisUseCaseProvider);
-  final acknowledgeIncidentUseCase = ref.watch(acknowledgeIncidentUseCaseProvider);
-  final resolveIncidentUseCase = ref.watch(resolveIncidentUseCaseProvider);
-  final requestAIAnalysisUseCase = ref.watch(requestAIAnalysisUseCaseProvider);
+final incidentDetailViewModelProvider =
+    StateNotifierProvider.family<
+      IncidentDetailViewModel,
+      IncidentDetailState,
+      int
+    >((ref, incidentId) {
+      final getIncidentsUseCase = ref.watch(getIncidentsUseCaseProvider);
+      final getAIAnalysisUseCase = ref.watch(getAIAnalysisUseCaseProvider);
+      final acknowledgeIncidentUseCase = ref.watch(
+        acknowledgeIncidentUseCaseProvider,
+      );
+      final resolveIncidentUseCase = ref.watch(resolveIncidentUseCaseProvider);
+      final requestAIAnalysisUseCase = ref.watch(
+        requestAIAnalysisUseCaseProvider,
+      );
 
-  final viewModel = IncidentDetailViewModel(
-    getIncidentsUseCase,
-    getAIAnalysisUseCase,
-    acknowledgeIncidentUseCase,
-    resolveIncidentUseCase,
-    requestAIAnalysisUseCase,
-  );
+      final viewModel = IncidentDetailViewModel(
+        getIncidentsUseCase,
+        getAIAnalysisUseCase,
+        acknowledgeIncidentUseCase,
+        resolveIncidentUseCase,
+        requestAIAnalysisUseCase,
+      );
 
-  // Auto-load incident detail when provider is first accessed
-  viewModel.loadIncidentDetail(incidentId);
+      // Auto-load incident detail when provider is first accessed
+      viewModel.loadIncidentDetail(incidentId);
 
-  return viewModel;
-});
+      return viewModel;
+    });

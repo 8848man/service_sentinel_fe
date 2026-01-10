@@ -169,8 +169,11 @@ class IncidentDetailScreen extends ConsumerWidget {
                         icon: Icons.check_circle_outline,
                         onPressed: () async {
                           final success = await ref
-                              .read(incidentDetailViewModelProvider(incidentId)
-                                  .notifier)
+                              .read(
+                                incidentDetailViewModelProvider(
+                                  incidentId,
+                                ).notifier,
+                              )
                               .acknowledgeIncident(incidentId);
 
                           if (context.mounted) {
@@ -196,7 +199,10 @@ class IncidentDetailScreen extends ConsumerWidget {
                       onPressed: () async {
                         final success = await ref
                             .read(
-                                incidentDetailViewModelProvider(incidentId).notifier)
+                              incidentDetailViewModelProvider(
+                                incidentId,
+                              ).notifier,
+                            )
                             .resolveIncident(incidentId);
 
                         if (context.mounted) {
@@ -257,7 +263,10 @@ class IncidentDetailScreen extends ConsumerWidget {
                     onPressed: () async {
                       final success = await ref
                           .read(
-                              incidentDetailViewModelProvider(incidentId).notifier)
+                            incidentDetailViewModelProvider(
+                              incidentId,
+                            ).notifier,
+                          )
                           .requestAIAnalysis(incidentId);
 
                       if (context.mounted) {
@@ -301,9 +310,7 @@ class IncidentDetailScreen extends ConsumerWidget {
             width: 180,
             child: Text(
               label,
-              style: AppTypography.body.copyWith(
-                color: colors.textSecondary,
-              ),
+              style: AppTypography.body.copyWith(color: colors.textSecondary),
             ),
           ),
           Expanded(
@@ -347,9 +354,7 @@ class IncidentDetailScreen extends ConsumerWidget {
               const SizedBox(height: AppSpacing.xs),
               Text(
                 aiAnalysis.rootCauseHypothesis,
-                style: AppTypography.body.copyWith(
-                  color: colors.textPrimary,
-                ),
+                style: AppTypography.body.copyWith(color: colors.textPrimary),
               ),
               const SizedBox(height: AppSpacing.sm),
 
@@ -382,23 +387,25 @@ class IncidentDetailScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: AppSpacing.xs),
-              ...aiAnalysis.debugChecklist.map((item) => Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('• ', style: TextStyle(color: colors.textPrimary)),
-                        Expanded(
-                          child: Text(
-                            item,
-                            style: AppTypography.body.copyWith(
-                              color: colors.textPrimary,
-                            ),
+              ...aiAnalysis.debugChecklist.map(
+                (item) => Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('• ', style: TextStyle(color: colors.textPrimary)),
+                      Expanded(
+                        child: Text(
+                          item,
+                          style: AppTypography.body.copyWith(
+                            color: colors.textPrimary,
                           ),
                         ),
-                      ],
-                    ),
-                  )),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               const SizedBox(height: AppSpacing.md),
 
               // Suggested Actions
@@ -410,43 +417,45 @@ class IncidentDetailScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: AppSpacing.xs),
-              ...aiAnalysis.suggestedActions.map((action) => Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(
-                          Icons.arrow_forward,
-                          size: 16,
-                          color: colors.primary,
-                        ),
-                        const SizedBox(width: AppSpacing.xs),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
+              ...aiAnalysis.suggestedActions.map(
+                (action) => Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.arrow_forward,
+                        size: 16,
+                        color: colors.primary,
+                      ),
+                      const SizedBox(width: AppSpacing.xs),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              action.action,
+                              style: AppTypography.body.copyWith(
+                                color: colors.textPrimary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            if (action.estimatedImpact.isNotEmpty) ...[
+                              const SizedBox(height: AppSpacing.xs),
                               Text(
-                                action.action,
-                                style: AppTypography.body.copyWith(
-                                  color: colors.textPrimary,
-                                  fontWeight: FontWeight.w600,
+                                action.estimatedImpact,
+                                style: AppTypography.caption.copyWith(
+                                  color: colors.textSecondary,
                                 ),
                               ),
-                              if (action.estimatedImpact.isNotEmpty) ...[
-                                const SizedBox(height: AppSpacing.xs),
-                                Text(
-                                  action.estimatedImpact,
-                                  style: AppTypography.caption.copyWith(
-                                    color: colors.textSecondary,
-                                  ),
-                                ),
-                              ],
                             ],
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
-                  )),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),

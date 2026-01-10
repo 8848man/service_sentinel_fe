@@ -16,9 +16,9 @@ class AIAnalysis {
   final int id;
   final int incidentId;
   final String modelUsed;
-  final int promptTokens;
-  final int completionTokens;
-  final double totalCostUsd;
+  final int? promptTokens;
+  final int? completionTokens;
+  final double? totalCostUsd;
   final String rootCauseHypothesis;
   final double confidenceScore;
   final List<String> debugChecklist;

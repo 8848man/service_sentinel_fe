@@ -25,9 +25,9 @@ AIAnalysisDto _$AIAnalysisDtoFromJson(Map<String, dynamic> json) =>
       id: (json['id'] as num).toInt(),
       incidentId: (json['incident_id'] as num).toInt(),
       modelUsed: json['model_used'] as String,
-      promptTokens: (json['prompt_tokens'] as num).toInt(),
-      completionTokens: (json['completion_tokens'] as num).toInt(),
-      totalCostUsd: (json['total_cost_usd'] as num).toDouble(),
+      promptTokens: (json['prompt_tokens'] as num?)?.toInt(),
+      completionTokens: (json['completion_tokens'] as num?)?.toInt(),
+      totalCostUsd: (json['total_cost_usd'] as num?)?.toDouble(),
       rootCauseHypothesis: json['root_cause_hypothesis'] as String,
       confidenceScore: (json['confidence_score'] as num).toDouble(),
       debugChecklist: (json['debug_checklist'] as List<dynamic>)
