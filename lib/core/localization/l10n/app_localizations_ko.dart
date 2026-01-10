@@ -232,4 +232,119 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get lastUpdated => '마지막 업데이트';
+
+  @override
+  String get serviceDetail => '서비스 상세';
+
+  @override
+  String get checkNow => '지금 확인';
+
+  @override
+  String get edit => '수정';
+
+  @override
+  String get delete => '삭제';
+
+  @override
+  String get cancel => '취소';
+
+  @override
+  String get deleteService => '서비스 삭제';
+
+  @override
+  String get deleteServiceConfirmTitle => '서비스를 삭제하시겠습니까?';
+
+  @override
+  String get deleteServiceConfirmMessage =>
+      '이 서비스를 삭제하시겠습니까? 이 작업은 취소할 수 없습니다.';
+
+  @override
+  String get deleteServiceFailed => '서비스 삭제 실패';
+
+  @override
+  String get noHealthChecks => '상태 체크 기록이 없습니다';
+
+  @override
+  String get healthCheckTriggered => '상태 체크가 성공적으로 시작되었습니다';
+
+  @override
+  String get healthCheckFailed => '상태 체크 시작 실패';
+
+  @override
+  String get serviceActive => '활성';
+
+  @override
+  String get serviceInactive => '비활성';
+
+  @override
+  String get serviceCreate => '서비스 생성';
+
+  @override
+  String get serviceCreatedSuccess => '서비스가 성공적으로 생성되었습니다';
+
+  @override
+  String get serviceUpdatedSuccess => '서비스가 성공적으로 수정되었습니다';
+
+  @override
+  String get fieldRequired => '이 필드는 필수입니다';
+
+  @override
+  String get invalidUrl => 'http:// 또는 https://로 시작하는 유효한 URL을 입력하세요';
+
+  @override
+  String get invalidNumber => '유효한 양수를 입력하세요';
+
+  @override
+  String get failureThresholdHelp => '장애 생성 전 연속 실패 횟수';
+
+  @override
+  String get all => '전체';
+
+  @override
+  String get status => '상태';
+
+  @override
+  String get severity => '심각도';
+
+  @override
+  String get incidentDetail => '장애 상세';
+
+  @override
+  String get detectedAt => '감지 시각';
+
+  @override
+  String get resolvedAt => '해결 시각';
+
+  @override
+  String get acknowledgedAt => '확인 시각';
+
+  @override
+  String get consecutiveFailures => '연속 실패 횟수';
+
+  @override
+  String get totalAffectedChecks => '전체 영향받은 체크 수';
+
+  @override
+  String get incidentAcknowledge => '확인';
+
+  @override
+  String get incidentResolve => '해결';
+
+  @override
+  String get incidentRequestAnalysis => 'AI 분석 요청';
+
+  @override
+  String get incidentAcknowledged_success => '장애가 성공적으로 확인되었습니다';
+
+  @override
+  String get incidentResolved_success => '장애가 성공적으로 해결되었습니다';
+
+  @override
+  String get aiAnalysisRequested => 'AI 분석이 성공적으로 요청되었습니다';
+
+  @override
+  String get aiAnalysisFailed => 'AI 분석 요청 실패';
+
+  @override
+  String get noAiAnalysis => '아직 AI 분석을 사용할 수 없습니다';
 }

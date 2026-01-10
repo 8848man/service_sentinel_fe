@@ -40,7 +40,9 @@ class ServiceRepositoryImpl implements ServiceRepository {
   }
 
   @override
-  Future<Either<Failure, Service>> createService(Map<String, dynamic> data) async {
+  Future<Either<Failure, Service>> createService(
+    Map<String, dynamic> data,
+  ) async {
     try {
       final dto = await _remoteDataSource.createService(data);
       return Right(dto.toEntity());

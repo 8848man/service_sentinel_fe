@@ -1,3 +1,5 @@
+import 'service_status.dart';
+
 /// Service entity representing a monitored service
 class Service {
   final int id;
@@ -16,6 +18,8 @@ class Service {
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? lastCheckedAt;
+  final ServiceStatus? status;
+  final int? lastCheckLatencyMs;
 
   const Service({
     required this.id,
@@ -34,6 +38,8 @@ class Service {
     required this.createdAt,
     required this.updatedAt,
     this.lastCheckedAt,
+    this.status,
+    this.lastCheckLatencyMs,
   });
 
   Service copyWith({
@@ -53,6 +59,8 @@ class Service {
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? lastCheckedAt,
+    ServiceStatus? status,
+    int? lastCheckLatencyMs,
   }) {
     return Service(
       id: id ?? this.id,
@@ -71,6 +79,8 @@ class Service {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       lastCheckedAt: lastCheckedAt ?? this.lastCheckedAt,
+      status: status ?? this.status,
+      lastCheckLatencyMs: lastCheckLatencyMs ?? this.lastCheckLatencyMs,
     );
   }
 }

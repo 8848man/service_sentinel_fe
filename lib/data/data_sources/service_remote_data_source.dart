@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import '../../core/network/api_client.dart';
 import '../../core/network/api_exception.dart';
 import '../models/service_dto.dart';
@@ -10,15 +11,39 @@ class ServiceRemoteDataSource {
 
   ServiceRemoteDataSource(this._apiClient);
 
+  /// Handle exceptions from API calls
+  Never _handleError(dynamic error) {
+    if (error is DioException) {
+      throw ApiException.fromDioError(error);
+    } else if (error is TypeError || error is FormatException) {
+      throw ApiException.parseError();
+    } else {
+      throw ApiException(
+        message: error.toString(),
+        type: ApiExceptionType.unknown,
+      );
+    }
+  }
+
   /// Get all services
   Future<List<ServiceDto>> getServices() async {
     try {
       final response = await _apiClient.get('/services');
-      return (response.data as List)
-          .map((json) => ServiceDto.fromJson(json))
-          .toList();
+
+      // Handle paginated response with "items" array
+      final data = response.data;
+      if (data is Map<String, dynamic> && data.containsKey('items')) {
+        return (data['items'] as List)
+            .map((json) => ServiceDto.fromJson(json))
+            .toList();
+      } else if (data is List) {
+        // Fallback for direct array response
+        return data.map((json) => ServiceDto.fromJson(json)).toList();
+      } else {
+        throw ApiException.parseError('Unexpected response format for services');
+      }
     } catch (e) {
-      throw ApiException.fromDioError(e as dynamic);
+      _handleError(e);
     }
   }
 
@@ -28,7 +53,7 @@ class ServiceRemoteDataSource {
       final response = await _apiClient.get('/services/$id');
       return ServiceDto.fromJson(response.data);
     } catch (e) {
-      throw ApiException.fromDioError(e as dynamic);
+      _handleError(e);
     }
   }
 
@@ -38,7 +63,7 @@ class ServiceRemoteDataSource {
       final response = await _apiClient.post('/services', data: data);
       return ServiceDto.fromJson(response.data);
     } catch (e) {
-      throw ApiException.fromDioError(e as dynamic);
+      _handleError(e);
     }
   }
 
@@ -48,7 +73,7 @@ class ServiceRemoteDataSource {
       final response = await _apiClient.patch('/services/$id', data: data);
       return ServiceDto.fromJson(response.data);
     } catch (e) {
-      throw ApiException.fromDioError(e as dynamic);
+      _handleError(e);
     }
   }
 
@@ -57,7 +82,7 @@ class ServiceRemoteDataSource {
     try {
       await _apiClient.delete('/services/$id');
     } catch (e) {
-      throw ApiException.fromDioError(e as dynamic);
+      _handleError(e);
     }
   }
 
@@ -67,7 +92,7 @@ class ServiceRemoteDataSource {
       final response = await _apiClient.post('/services/$id/activate');
       return ServiceDto.fromJson(response.data);
     } catch (e) {
-      throw ApiException.fromDioError(e as dynamic);
+      _handleError(e);
     }
   }
 
@@ -77,7 +102,7 @@ class ServiceRemoteDataSource {
       final response = await _apiClient.post('/services/$id/deactivate');
       return ServiceDto.fromJson(response.data);
     } catch (e) {
-      throw ApiException.fromDioError(e as dynamic);
+      _handleError(e);
     }
   }
 
@@ -87,7 +112,7 @@ class ServiceRemoteDataSource {
       final response = await _apiClient.post('/services/$id/check-now');
       return HealthCheckDto.fromJson(response.data);
     } catch (e) {
-      throw ApiException.fromDioError(e as dynamic);
+      _handleError(e);
     }
   }
 
@@ -107,11 +132,20 @@ class ServiceRemoteDataSource {
         queryParameters: queryParams,
       );
 
-      return (response.data as List)
-          .map((json) => HealthCheckDto.fromJson(json))
-          .toList();
+      // Handle paginated response with "items" array
+      final data = response.data;
+      if (data is Map<String, dynamic> && data.containsKey('items')) {
+        return (data['items'] as List)
+            .map((json) => HealthCheckDto.fromJson(json))
+            .toList();
+      } else if (data is List) {
+        // Fallback for direct array response
+        return data.map((json) => HealthCheckDto.fromJson(json)).toList();
+      } else {
+        throw ApiException.parseError('Unexpected response format for health checks');
+      }
     } catch (e) {
-      throw ApiException.fromDioError(e as dynamic);
+      _handleError(e);
     }
   }
 
@@ -124,7 +158,7 @@ class ServiceRemoteDataSource {
       );
       return ServiceStatsDto.fromJson(response.data);
     } catch (e) {
-      throw ApiException.fromDioError(e as dynamic);
+      _handleError(e);
     }
   }
 }

@@ -27,6 +27,8 @@ ServiceDto _$ServiceDtoFromJson(Map<String, dynamic> json) => ServiceDto(
   lastCheckedAt: json['last_checked_at'] == null
       ? null
       : DateTime.parse(json['last_checked_at'] as String),
+  status: json['status'] as String?,
+  lastCheckLatencyMs: (json['last_check_latency_ms'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$ServiceDtoToJson(ServiceDto instance) =>
@@ -47,6 +49,8 @@ Map<String, dynamic> _$ServiceDtoToJson(ServiceDto instance) =>
       'created_at': instance.createdAt.toIso8601String(),
       'updated_at': instance.updatedAt.toIso8601String(),
       'last_checked_at': instance.lastCheckedAt?.toIso8601String(),
+      'status': instance.status,
+      'last_check_latency_ms': instance.lastCheckLatencyMs,
     };
 
 ServiceCreateDto _$ServiceCreateDtoFromJson(Map<String, dynamic> json) =>

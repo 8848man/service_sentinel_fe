@@ -33,6 +33,9 @@ class ServiceDto {
   final DateTime updatedAt;
   @JsonKey(name: 'last_checked_at')
   final DateTime? lastCheckedAt;
+  final String? status; // healthy, warning, down, unknown
+  @JsonKey(name: 'last_check_latency_ms')
+  final int? lastCheckLatencyMs;
 
   ServiceDto({
     required this.id,
@@ -51,6 +54,8 @@ class ServiceDto {
     required this.createdAt,
     required this.updatedAt,
     this.lastCheckedAt,
+    this.status,
+    this.lastCheckLatencyMs,
   });
 
   factory ServiceDto.fromJson(Map<String, dynamic> json) =>
@@ -100,4 +105,13 @@ class ServiceCreateDto {
       _$ServiceCreateDtoFromJson(json);
 
   Map<String, dynamic> toJson() => _$ServiceCreateDtoToJson(this);
+}
+
+enum ServiceTypeDto {
+  httpApi,
+  httpsApi,
+  gcpEndpoint,
+  firebase,
+  websocket,
+  grpc,
 }

@@ -29,6 +29,8 @@ extension ServiceDtoMapper on ServiceDto {
       createdAt: createdAt,
       updatedAt: updatedAt,
       lastCheckedAt: lastCheckedAt,
+      status: status != null ? ServiceStatus.fromString(status!) : null,
+      lastCheckLatencyMs: lastCheckLatencyMs,
     );
   }
 }

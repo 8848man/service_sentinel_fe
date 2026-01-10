@@ -101,6 +101,14 @@ class ApiException implements Exception {
     }
   }
 
+  /// Create ApiException for JSON parsing errors
+  factory ApiException.parseError([String? details]) {
+    return ApiException(
+      message: details ?? 'Failed to parse server response. The endpoint may not be returning valid JSON data.',
+      type: ApiExceptionType.parse,
+    );
+  }
+
   @override
   String toString() => message;
 }
@@ -111,5 +119,6 @@ enum ApiExceptionType {
   network,
   response,
   cancel,
+  parse,
   unknown,
 }

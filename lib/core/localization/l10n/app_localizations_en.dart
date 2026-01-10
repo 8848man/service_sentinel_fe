@@ -233,4 +233,122 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lastUpdated => 'Last updated';
+
+  @override
+  String get serviceDetail => 'Service Detail';
+
+  @override
+  String get checkNow => 'Check Now';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get deleteService => 'Delete Service';
+
+  @override
+  String get deleteServiceConfirmTitle => 'Delete Service?';
+
+  @override
+  String get deleteServiceConfirmMessage =>
+      'Are you sure you want to delete this service? This action cannot be undone.';
+
+  @override
+  String get deleteServiceFailed => 'Failed to delete service';
+
+  @override
+  String get noHealthChecks => 'No health checks yet';
+
+  @override
+  String get healthCheckTriggered => 'Health check triggered successfully';
+
+  @override
+  String get healthCheckFailed => 'Failed to trigger health check';
+
+  @override
+  String get serviceActive => 'Active';
+
+  @override
+  String get serviceInactive => 'Inactive';
+
+  @override
+  String get serviceCreate => 'Create Service';
+
+  @override
+  String get serviceCreatedSuccess => 'Service created successfully';
+
+  @override
+  String get serviceUpdatedSuccess => 'Service updated successfully';
+
+  @override
+  String get fieldRequired => 'This field is required';
+
+  @override
+  String get invalidUrl =>
+      'Please enter a valid URL starting with http:// or https://';
+
+  @override
+  String get invalidNumber => 'Please enter a valid positive number';
+
+  @override
+  String get failureThresholdHelp =>
+      'Number of consecutive failures before creating an incident';
+
+  @override
+  String get all => 'All';
+
+  @override
+  String get status => 'Status';
+
+  @override
+  String get severity => 'Severity';
+
+  @override
+  String get incidentDetail => 'Incident Detail';
+
+  @override
+  String get detectedAt => 'Detected At';
+
+  @override
+  String get resolvedAt => 'Resolved At';
+
+  @override
+  String get acknowledgedAt => 'Acknowledged At';
+
+  @override
+  String get consecutiveFailures => 'Consecutive Failures';
+
+  @override
+  String get totalAffectedChecks => 'Total Affected Checks';
+
+  @override
+  String get incidentAcknowledge => 'Acknowledge';
+
+  @override
+  String get incidentResolve => 'Resolve';
+
+  @override
+  String get incidentRequestAnalysis => 'Request AI Analysis';
+
+  @override
+  String get incidentAcknowledged_success =>
+      'Incident acknowledged successfully';
+
+  @override
+  String get incidentResolved_success => 'Incident resolved successfully';
+
+  @override
+  String get aiAnalysisRequested => 'AI analysis requested successfully';
+
+  @override
+  String get aiAnalysisFailed => 'Failed to request AI analysis';
+
+  @override
+  String get noAiAnalysis => 'No AI analysis available yet';
 }

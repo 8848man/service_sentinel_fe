@@ -12,6 +12,17 @@ import '../../domain/repositories/dashboard_repository.dart';
 import '../../domain/use_cases/get_dashboard_overview.dart';
 import '../../domain/use_cases/get_services.dart';
 import '../../domain/use_cases/get_incidents.dart';
+import '../../domain/use_cases/delete_service.dart';
+import '../../domain/use_cases/trigger_health_check.dart';
+import '../../domain/use_cases/get_service_by_id.dart';
+import '../../domain/use_cases/get_health_checks.dart';
+import '../../domain/use_cases/get_service_stats.dart';
+import '../../domain/use_cases/create_service.dart';
+import '../../domain/use_cases/update_service.dart';
+import '../../domain/use_cases/acknowledge_incident.dart';
+import '../../domain/use_cases/resolve_incident.dart';
+import '../../domain/use_cases/request_ai_analysis.dart';
+import '../../domain/use_cases/get_ai_analysis.dart';
 
 // ============================================================================
 // API Client
@@ -86,4 +97,70 @@ final getServicesUseCaseProvider = Provider<GetServicesUseCase>((ref) {
 final getIncidentsUseCaseProvider = Provider<GetIncidentsUseCase>((ref) {
   final repository = ref.watch(incidentRepositoryProvider);
   return GetIncidentsUseCase(repository);
+});
+
+/// Provider for Delete Service use case
+final deleteServiceUseCaseProvider = Provider<DeleteServiceUseCase>((ref) {
+  final repository = ref.watch(serviceRepositoryProvider);
+  return DeleteServiceUseCase(repository);
+});
+
+/// Provider for Trigger Health Check use case
+final triggerHealthCheckUseCaseProvider = Provider<TriggerHealthCheckUseCase>((ref) {
+  final repository = ref.watch(serviceRepositoryProvider);
+  return TriggerHealthCheckUseCase(repository);
+});
+
+/// Provider for Get Service By ID use case
+final getServiceByIdUseCaseProvider = Provider<GetServiceByIdUseCase>((ref) {
+  final repository = ref.watch(serviceRepositoryProvider);
+  return GetServiceByIdUseCase(repository);
+});
+
+/// Provider for Get Health Checks use case
+final getHealthChecksUseCaseProvider = Provider<GetHealthChecksUseCase>((ref) {
+  final repository = ref.watch(serviceRepositoryProvider);
+  return GetHealthChecksUseCase(repository);
+});
+
+/// Provider for Get Service Stats use case
+final getServiceStatsUseCaseProvider = Provider<GetServiceStatsUseCase>((ref) {
+  final repository = ref.watch(serviceRepositoryProvider);
+  return GetServiceStatsUseCase(repository);
+});
+
+/// Provider for Create Service use case
+final createServiceUseCaseProvider = Provider<CreateServiceUseCase>((ref) {
+  final repository = ref.watch(serviceRepositoryProvider);
+  return CreateServiceUseCase(repository);
+});
+
+/// Provider for Update Service use case
+final updateServiceUseCaseProvider = Provider<UpdateServiceUseCase>((ref) {
+  final repository = ref.watch(serviceRepositoryProvider);
+  return UpdateServiceUseCase(repository);
+});
+
+/// Provider for Acknowledge Incident use case
+final acknowledgeIncidentUseCaseProvider = Provider<AcknowledgeIncidentUseCase>((ref) {
+  final repository = ref.watch(incidentRepositoryProvider);
+  return AcknowledgeIncidentUseCase(repository);
+});
+
+/// Provider for Resolve Incident use case
+final resolveIncidentUseCaseProvider = Provider<ResolveIncidentUseCase>((ref) {
+  final repository = ref.watch(incidentRepositoryProvider);
+  return ResolveIncidentUseCase(repository);
+});
+
+/// Provider for Request AI Analysis use case
+final requestAIAnalysisUseCaseProvider = Provider<RequestAIAnalysisUseCase>((ref) {
+  final repository = ref.watch(incidentRepositoryProvider);
+  return RequestAIAnalysisUseCase(repository);
+});
+
+/// Provider for Get AI Analysis use case
+final getAIAnalysisUseCaseProvider = Provider<GetAIAnalysisUseCase>((ref) {
+  final repository = ref.watch(incidentRepositoryProvider);
+  return GetAIAnalysisUseCase(repository);
 });

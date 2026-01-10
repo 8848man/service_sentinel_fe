@@ -547,6 +547,234 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Last updated'**
   String get lastUpdated;
+
+  /// No description provided for @serviceDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Service Detail'**
+  String get serviceDetail;
+
+  /// No description provided for @checkNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Check Now'**
+  String get checkNow;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @deleteService.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Service'**
+  String get deleteService;
+
+  /// No description provided for @deleteServiceConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Service?'**
+  String get deleteServiceConfirmTitle;
+
+  /// No description provided for @deleteServiceConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this service? This action cannot be undone.'**
+  String get deleteServiceConfirmMessage;
+
+  /// No description provided for @deleteServiceFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete service'**
+  String get deleteServiceFailed;
+
+  /// No description provided for @noHealthChecks.
+  ///
+  /// In en, this message translates to:
+  /// **'No health checks yet'**
+  String get noHealthChecks;
+
+  /// No description provided for @healthCheckTriggered.
+  ///
+  /// In en, this message translates to:
+  /// **'Health check triggered successfully'**
+  String get healthCheckTriggered;
+
+  /// No description provided for @healthCheckFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to trigger health check'**
+  String get healthCheckFailed;
+
+  /// No description provided for @serviceActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get serviceActive;
+
+  /// No description provided for @serviceInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get serviceInactive;
+
+  /// No description provided for @serviceCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Service'**
+  String get serviceCreate;
+
+  /// No description provided for @serviceCreatedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Service created successfully'**
+  String get serviceCreatedSuccess;
+
+  /// No description provided for @serviceUpdatedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Service updated successfully'**
+  String get serviceUpdatedSuccess;
+
+  /// No description provided for @fieldRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required'**
+  String get fieldRequired;
+
+  /// No description provided for @invalidUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid URL starting with http:// or https://'**
+  String get invalidUrl;
+
+  /// No description provided for @invalidNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid positive number'**
+  String get invalidNumber;
+
+  /// No description provided for @failureThresholdHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of consecutive failures before creating an incident'**
+  String get failureThresholdHelp;
+
+  /// No description provided for @all.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get all;
+
+  /// No description provided for @status.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get status;
+
+  /// No description provided for @severity.
+  ///
+  /// In en, this message translates to:
+  /// **'Severity'**
+  String get severity;
+
+  /// No description provided for @incidentDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Incident Detail'**
+  String get incidentDetail;
+
+  /// No description provided for @detectedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Detected At'**
+  String get detectedAt;
+
+  /// No description provided for @resolvedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved At'**
+  String get resolvedAt;
+
+  /// No description provided for @acknowledgedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Acknowledged At'**
+  String get acknowledgedAt;
+
+  /// No description provided for @consecutiveFailures.
+  ///
+  /// In en, this message translates to:
+  /// **'Consecutive Failures'**
+  String get consecutiveFailures;
+
+  /// No description provided for @totalAffectedChecks.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Affected Checks'**
+  String get totalAffectedChecks;
+
+  /// No description provided for @incidentAcknowledge.
+  ///
+  /// In en, this message translates to:
+  /// **'Acknowledge'**
+  String get incidentAcknowledge;
+
+  /// No description provided for @incidentResolve.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolve'**
+  String get incidentResolve;
+
+  /// No description provided for @incidentRequestAnalysis.
+  ///
+  /// In en, this message translates to:
+  /// **'Request AI Analysis'**
+  String get incidentRequestAnalysis;
+
+  /// No description provided for @incidentAcknowledged_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Incident acknowledged successfully'**
+  String get incidentAcknowledged_success;
+
+  /// No description provided for @incidentResolved_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Incident resolved successfully'**
+  String get incidentResolved_success;
+
+  /// No description provided for @aiAnalysisRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'AI analysis requested successfully'**
+  String get aiAnalysisRequested;
+
+  /// No description provided for @aiAnalysisFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to request AI analysis'**
+  String get aiAnalysisFailed;
+
+  /// No description provided for @noAiAnalysis.
+  ///
+  /// In en, this message translates to:
+  /// **'No AI analysis available yet'**
+  String get noAiAnalysis;
 }
 
 class _AppLocalizationsDelegate

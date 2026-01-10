@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import '../../core/network/api_client.dart';
 import '../../core/network/api_exception.dart';
 import '../models/incident_dto.dart';
@@ -8,6 +9,20 @@ class IncidentRemoteDataSource {
   final ApiClient _apiClient;
 
   IncidentRemoteDataSource(this._apiClient);
+
+  /// Handle exceptions from API calls
+  Never _handleError(dynamic error) {
+    if (error is DioException) {
+      throw ApiException.fromDioError(error);
+    } else if (error is TypeError || error is FormatException) {
+      throw ApiException.parseError();
+    } else {
+      throw ApiException(
+        message: error.toString(),
+        type: ApiExceptionType.unknown,
+      );
+    }
+  }
 
   /// Get all incidents with filters
   Future<List<IncidentDto>> getIncidents({
@@ -39,7 +54,7 @@ class IncidentRemoteDataSource {
       // Fallback: assume direct list
       return (data as List).map((json) => IncidentDto.fromJson(json)).toList();
     } catch (e) {
-      throw ApiException.fromDioError(e as dynamic);
+      _handleError(e);
     }
   }
 
@@ -49,7 +64,7 @@ class IncidentRemoteDataSource {
       final response = await _apiClient.get('/incidents/$id');
       return IncidentDto.fromJson(response.data);
     } catch (e) {
-      throw ApiException.fromDioError(e as dynamic);
+      _handleError(e);
     }
   }
 
@@ -57,11 +72,19 @@ class IncidentRemoteDataSource {
   Future<List<IncidentDto>> getServiceIncidents(int serviceId) async {
     try {
       final response = await _apiClient.get('/services/$serviceId/incidents');
-      return (response.data as List)
-          .map((json) => IncidentDto.fromJson(json))
-          .toList();
+
+      // Handle paginated response with "items" array
+      final data = response.data;
+      if (data is Map && data.containsKey('items')) {
+        return (data['items'] as List)
+            .map((json) => IncidentDto.fromJson(json))
+            .toList();
+      }
+
+      // Fallback: assume direct list
+      return (data as List).map((json) => IncidentDto.fromJson(json)).toList();
     } catch (e) {
-      throw ApiException.fromDioError(e as dynamic);
+      _handleError(e);
     }
   }
 
@@ -74,7 +97,7 @@ class IncidentRemoteDataSource {
       final response = await _apiClient.patch('/incidents/$id', data: data);
       return IncidentDto.fromJson(response.data);
     } catch (e) {
-      throw ApiException.fromDioError(e as dynamic);
+      _handleError(e);
     }
   }
 
@@ -84,7 +107,7 @@ class IncidentRemoteDataSource {
       final response = await _apiClient.post('/incidents/$id/acknowledge');
       return IncidentDto.fromJson(response.data);
     } catch (e) {
-      throw ApiException.fromDioError(e as dynamic);
+      _handleError(e);
     }
   }
 
@@ -94,7 +117,7 @@ class IncidentRemoteDataSource {
       final response = await _apiClient.post('/incidents/$id/resolve');
       return IncidentDto.fromJson(response.data);
     } catch (e) {
-      throw ApiException.fromDioError(e as dynamic);
+      _handleError(e);
     }
   }
 
@@ -105,7 +128,7 @@ class IncidentRemoteDataSource {
       if (response.data == null) return null;
       return AIAnalysisDto.fromJson(response.data);
     } catch (e) {
-      throw ApiException.fromDioError(e as dynamic);
+      _handleError(e);
     }
   }
 
@@ -121,7 +144,7 @@ class IncidentRemoteDataSource {
       );
       return AIAnalysisDto.fromJson(response.data);
     } catch (e) {
-      throw ApiException.fromDioError(e as dynamic);
+      _handleError(e);
     }
   }
 }
