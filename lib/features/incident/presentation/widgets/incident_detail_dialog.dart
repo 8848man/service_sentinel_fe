@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:service_sentinel_fe_v2/core/router/app_router.dart';
 import '../../../../core/constants/enums.dart';
+import '../../../../core/extensions/context_extensions.dart';
 import '../../domain/entities/incident.dart';
 
 /// Incident detail dialog - Shows detailed information about an incident
@@ -10,7 +13,7 @@ import '../../domain/entities/incident.dart';
 /// - Severity information
 /// - Timeline (detected, acknowledged, resolved)
 /// - AI analysis button (if available)
-class IncidentDetailDialog extends StatelessWidget {
+class IncidentDetailDialog extends ConsumerWidget {
   final Incident incident;
 
   const IncidentDetailDialog({
@@ -19,8 +22,9 @@ class IncidentDetailDialog extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return Dialog(
       child: Container(
@@ -37,7 +41,7 @@ class IncidentDetailDialog extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        'Incident Details',
+                        l10n.incidents_incident_details,
                         style: theme.textTheme.headlineSmall,
                       ),
                     ),
@@ -53,9 +57,9 @@ class IncidentDetailDialog extends StatelessWidget {
                 // Status and Severity badges
                 Row(
                   children: [
-                    _buildStatusBadge(incident.status, theme),
+                    _buildStatusBadge(context, incident.status, theme),
                     const SizedBox(width: 8),
-                    _buildSeverityBadge(incident.severity, theme),
+                    _buildSeverityBadge(context, incident.severity, theme),
                   ],
                 ),
 
@@ -80,12 +84,12 @@ class IncidentDetailDialog extends StatelessWidget {
                 const SizedBox(height: 24),
 
                 // Statistics
-                _buildStatisticsSection(theme),
+                _buildStatisticsSection(context, theme),
 
                 const SizedBox(height: 24),
 
                 // Timeline
-                _buildTimelineSection(theme),
+                _buildTimelineSection(context, theme),
 
                 const SizedBox(height: 24),
 
@@ -94,10 +98,15 @@ class IncidentDetailDialog extends StatelessWidget {
                   _buildAiAnalysisButton(context, theme),
                   const SizedBox(height: 16),
                 ] else if (incident.aiAnalysisRequested) ...[
-                  _buildAiAnalysisPending(theme),
+                  _buildAiAnalysisPending(context, theme),
                   const SizedBox(height: 16),
                 ] else ...[
-                  _buildRequestAiAnalysisButton(context, theme),
+                  _buildRequestAiAnalysisButton(
+                    context,
+                    theme,
+                    incident.id,
+                    ref,
+                  ),
                   const SizedBox(height: 16),
                 ],
 
@@ -107,7 +116,7 @@ class IncidentDetailDialog extends StatelessWidget {
                   children: [
                     OutlinedButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Close'),
+                      child: Text(l10n.common_close),
                     ),
                   ],
                 ),
@@ -119,7 +128,8 @@ class IncidentDetailDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildStatisticsSection(ThemeData theme) {
+  Widget _buildStatisticsSection(BuildContext context, ThemeData theme) {
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -130,7 +140,7 @@ class IncidentDetailDialog extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Statistics',
+            l10n.incidents_statistics,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -139,14 +149,14 @@ class IncidentDetailDialog extends StatelessWidget {
           _buildStatItem(
             theme,
             Icons.repeat,
-            'Consecutive Failures',
+            l10n.incidents_consecutive_failures,
             '${incident.consecutiveFailures}',
           ),
           const SizedBox(height: 8),
           _buildStatItem(
             theme,
             Icons.error_outline,
-            'Total Affected Checks',
+            l10n.incidents_total_affected_checks,
             '${incident.totalAffectedChecks}',
           ),
         ],
@@ -182,7 +192,8 @@ class IncidentDetailDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildTimelineSection(ThemeData theme) {
+  Widget _buildTimelineSection(BuildContext context, ThemeData theme) {
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -193,7 +204,7 @@ class IncidentDetailDialog extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Timeline',
+            l10n.incidents_timeline,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -202,7 +213,7 @@ class IncidentDetailDialog extends StatelessWidget {
           _buildTimelineItem(
             theme,
             Icons.error,
-            'Detected',
+            l10n.incidents_timeline_detected,
             _formatFullDateTime(incident.detectedAt),
             true,
           ),
@@ -211,7 +222,7 @@ class IncidentDetailDialog extends StatelessWidget {
             _buildTimelineItem(
               theme,
               Icons.visibility,
-              'Acknowledged',
+              l10n.incidents_timeline_acknowledged,
               _formatFullDateTime(incident.acknowledgedAt!),
               true,
             ),
@@ -221,7 +232,7 @@ class IncidentDetailDialog extends StatelessWidget {
             _buildTimelineItem(
               theme,
               Icons.check_circle,
-              'Resolved',
+              l10n.incidents_timeline_resolved,
               _formatFullDateTime(incident.resolvedAt!),
               true,
             ),
@@ -282,6 +293,7 @@ class IncidentDetailDialog extends StatelessWidget {
   }
 
   Widget _buildAiAnalysisButton(BuildContext context, ThemeData theme) {
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -300,16 +312,17 @@ class IncidentDetailDialog extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'AI Analysis Available',
+                  l10n.incidents_ai_analysis_available,
                   style: theme.textTheme.titleSmall?.copyWith(
                     color: theme.colorScheme.onPrimaryContainer,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
-                  'Root cause analysis completed',
+                  l10n.incidents_root_cause_analysis_completed,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onPrimaryContainer.withOpacity(0.8),
+                    color:
+                        theme.colorScheme.onPrimaryContainer.withOpacity(0.8),
                   ),
                 ),
               ],
@@ -319,19 +332,20 @@ class IncidentDetailDialog extends StatelessWidget {
             onPressed: () {
               // TODO: Navigate to AI analysis view
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('AI Analysis view coming soon'),
+                SnackBar(
+                  content: Text(l10n.incidents_ai_analysis_view_coming_soon),
                 ),
               );
             },
-            child: const Text('View Analysis'),
+            child: Text(l10n.incidents_view_analysis),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildAiAnalysisPending(ThemeData theme) {
+  Widget _buildAiAnalysisPending(BuildContext context, ThemeData theme) {
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -354,16 +368,17 @@ class IncidentDetailDialog extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'AI Analysis In Progress',
+                  l10n.incidents_ai_analysis_in_progress,
                   style: theme.textTheme.titleSmall?.copyWith(
                     color: theme.colorScheme.onSecondaryContainer,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
-                  'Root cause analysis is being generated',
+                  l10n.incidents_root_cause_analysis_generating,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSecondaryContainer.withOpacity(0.8),
+                    color:
+                        theme.colorScheme.onSecondaryContainer.withOpacity(0.8),
                   ),
                 ),
               ],
@@ -374,22 +389,26 @@ class IncidentDetailDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildRequestAiAnalysisButton(BuildContext context, ThemeData theme) {
+  Widget _buildRequestAiAnalysisButton(
+      BuildContext context, ThemeData theme, int incidentId, WidgetRef ref) {
+    final l10n = context.l10n;
     return OutlinedButton.icon(
       onPressed: () {
-        // TODO: Call RequestAiAnalysis use case
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('AI Analysis request sent'),
-          ),
-        );
+        // // TODO: Call RequestAiAnalysis use case
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(
+        //     content: Text(l10n.incidents_ai_analysis_request_sent),
+        //   ),
+        // );
+        ref.read(goRouterProvider).go('/incident/$incidentId/analysis');
       },
       icon: const Icon(Icons.psychology),
-      label: const Text('Request AI Analysis'),
+      label: Text(l10n.incidents_request_ai_analysis),
     );
   }
 
-  Widget _buildStatusBadge(IncidentStatus status, ThemeData theme) {
+  Widget _buildStatusBadge(
+      BuildContext context, IncidentStatus status, ThemeData theme) {
     Color color;
     IconData icon;
 
@@ -424,7 +443,7 @@ class IncidentDetailDialog extends StatelessWidget {
           Icon(icon, size: 16, color: color),
           const SizedBox(width: 6),
           Text(
-            status.name.toUpperCase(),
+            status.displayName(context),
             style: theme.textTheme.labelMedium?.copyWith(
               color: color,
               fontWeight: FontWeight.bold,
@@ -435,7 +454,8 @@ class IncidentDetailDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildSeverityBadge(IncidentSeverity severity, ThemeData theme) {
+  Widget _buildSeverityBadge(
+      BuildContext context, IncidentSeverity severity, ThemeData theme) {
     Color color;
     IconData icon;
 
@@ -471,7 +491,7 @@ class IncidentDetailDialog extends StatelessWidget {
           Icon(icon, size: 16, color: color),
           const SizedBox(width: 6),
           Text(
-            severity.name.toUpperCase(),
+            severity.displayName(context),
             style: theme.textTheme.labelMedium?.copyWith(
               color: color,
               fontWeight: FontWeight.bold,

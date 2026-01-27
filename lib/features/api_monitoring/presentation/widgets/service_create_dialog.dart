@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/enums.dart';
+import '../../../../core/extensions/context_extensions.dart';
 import '../../application/providers/service_provider.dart';
 import '../../domain/entities/service.dart';
 
@@ -13,7 +14,8 @@ class ServiceCreateDialog extends ConsumerStatefulWidget {
   const ServiceCreateDialog({super.key});
 
   @override
-  ConsumerState<ServiceCreateDialog> createState() => _ServiceCreateDialogState();
+  ConsumerState<ServiceCreateDialog> createState() =>
+      _ServiceCreateDialogState();
 }
 
 class _ServiceCreateDialogState extends ConsumerState<ServiceCreateDialog> {
@@ -80,16 +82,20 @@ class _ServiceCreateDialogState extends ConsumerState<ServiceCreateDialog> {
       // Close dialog and return the created service
       Navigator.of(context).pop(result.dataOrNull);
     } else {
+      final l10n = context.l10n;
       setState(() {
-        _errorMessage = result.errorOrNull?.message ?? 'Failed to create service';
+        _errorMessage =
+            result.errorOrNull?.message ?? l10n.error_failed_to_create_service;
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return AlertDialog(
-      title: const Text('Create New Service'),
+      title: Text(l10n.services_add_service),
       content: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -100,18 +106,18 @@ class _ServiceCreateDialogState extends ConsumerState<ServiceCreateDialog> {
               // Service Name Field
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Service Name *',
-                  hintText: 'e.g., User API',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.services_service_name_required,
+                  hintText: l10n.services_service_name_hint,
+                  border: const OutlineInputBorder(),
                 ),
                 enabled: !_isLoading,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Service name is required';
+                    return l10n.validation_required;
                   }
                   if (value.length > 100) {
-                    return 'Service name cannot exceed 100 characters';
+                    return l10n.validation_max_length(100);
                   }
                   return null;
                 },
@@ -122,19 +128,19 @@ class _ServiceCreateDialogState extends ConsumerState<ServiceCreateDialog> {
               // Endpoint URL Field
               TextFormField(
                 controller: _endpointUrlController,
-                decoration: const InputDecoration(
-                  labelText: 'Endpoint URL *',
-                  hintText: 'https://api.example.com/health',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.services_endpoint_url_required,
+                  hintText: l10n.services_endpoint_url_hint,
+                  border: const OutlineInputBorder(),
                 ),
                 enabled: !_isLoading,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Endpoint URL is required';
+                    return l10n.validation_required;
                   }
                   final urlPattern = RegExp(r'^https?://');
                   if (!urlPattern.hasMatch(value)) {
-                    return 'URL must start with http:// or https://';
+                    return l10n.validation_url_protocol;
                   }
                   return null;
                 },
@@ -146,14 +152,14 @@ class _ServiceCreateDialogState extends ConsumerState<ServiceCreateDialog> {
               // HTTP Method Dropdown
               DropdownButtonFormField<HttpMethod>(
                 value: _selectedHttpMethod,
-                decoration: const InputDecoration(
-                  labelText: 'HTTP Method *',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.services_http_method_required,
+                  border: const OutlineInputBorder(),
                 ),
                 items: HttpMethod.values.map((method) {
                   return DropdownMenuItem(
                     value: method,
-                    child: Text(method.value),
+                    child: Text(method.displayName(context)),
                   );
                 }).toList(),
                 onChanged: _isLoading
@@ -171,14 +177,14 @@ class _ServiceCreateDialogState extends ConsumerState<ServiceCreateDialog> {
               // Service Type Dropdown
               DropdownButtonFormField<ServiceType>(
                 value: _selectedServiceType,
-                decoration: const InputDecoration(
-                  labelText: 'Service Type *',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.services_service_type_required,
+                  border: const OutlineInputBorder(),
                 ),
                 items: ServiceType.values.map((type) {
                   return DropdownMenuItem(
                     value: type,
-                    child: Text(type.displayName),
+                    child: Text(type.displayName(context)),
                   );
                 }).toList(),
                 onChanged: _isLoading
@@ -196,20 +202,20 @@ class _ServiceCreateDialogState extends ConsumerState<ServiceCreateDialog> {
               // Timeout Seconds Field
               TextFormField(
                 controller: _timeoutController,
-                decoration: const InputDecoration(
-                  labelText: 'Timeout (seconds) *',
-                  hintText: '10',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.services_timeout_seconds_required,
+                  hintText: l10n.services_timeout_hint,
+                  border: const OutlineInputBorder(),
                 ),
                 enabled: !_isLoading,
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Timeout is required';
+                    return l10n.validation_required;
                   }
                   final timeout = int.tryParse(value);
                   if (timeout == null || timeout <= 0 || timeout > 300) {
-                    return 'Timeout must be between 1 and 300 seconds';
+                    return l10n.validation_number_between(1, 300);
                   }
                   return null;
                 },
@@ -220,20 +226,20 @@ class _ServiceCreateDialogState extends ConsumerState<ServiceCreateDialog> {
               // Check Interval Field
               TextFormField(
                 controller: _checkIntervalController,
-                decoration: const InputDecoration(
-                  labelText: 'Check Interval (seconds) *',
-                  hintText: '60',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.services_check_interval_seconds_required,
+                  hintText: l10n.services_check_interval_hint,
+                  border: const OutlineInputBorder(),
                 ),
                 enabled: !_isLoading,
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Check interval is required';
+                    return l10n.validation_required;
                   }
                   final interval = int.tryParse(value);
                   if (interval == null || interval < 10 || interval > 3600) {
-                    return 'Check interval must be between 10 and 3600 seconds';
+                    return l10n.validation_number_between(10, 3600);
                   }
                   return null;
                 },
@@ -244,20 +250,20 @@ class _ServiceCreateDialogState extends ConsumerState<ServiceCreateDialog> {
               // Failure Threshold Field
               TextFormField(
                 controller: _failureThresholdController,
-                decoration: const InputDecoration(
-                  labelText: 'Failure Threshold *',
-                  hintText: '3',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.services_failure_threshold_required,
+                  hintText: l10n.services_failure_threshold_hint,
+                  border: const OutlineInputBorder(),
                 ),
                 enabled: !_isLoading,
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Failure threshold is required';
+                    return l10n.validation_required;
                   }
                   final threshold = int.tryParse(value);
                   if (threshold == null || threshold <= 0 || threshold > 10) {
-                    return 'Failure threshold must be between 1 and 10';
+                    return l10n.validation_number_between(1, 10);
                   }
                   return null;
                 },
@@ -268,10 +274,10 @@ class _ServiceCreateDialogState extends ConsumerState<ServiceCreateDialog> {
               // Description Field
               TextFormField(
                 controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description (Optional)',
-                  hintText: 'Enter service description',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.services_description_optional,
+                  hintText: l10n.services_description_hint,
+                  border: const OutlineInputBorder(),
                 ),
                 enabled: !_isLoading,
                 maxLines: 2,
@@ -310,7 +316,7 @@ class _ServiceCreateDialogState extends ConsumerState<ServiceCreateDialog> {
         // Cancel Button
         TextButton(
           onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(l10n.common_cancel),
         ),
 
         // Create Button
@@ -322,7 +328,7 @@ class _ServiceCreateDialogState extends ConsumerState<ServiceCreateDialog> {
                   height: 20,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Text('Create'),
+              : Text(l10n.common_create),
         ),
       ],
     );

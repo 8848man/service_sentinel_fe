@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:service_sentinel_fe_v2/core/l10n/app_localizations.dart';
+
+import '../../../../core/extensions/context_extensions.dart';
+import '../../../../core/l10n/locale_provider.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/state/project_session_notifier.dart';
-import '../../../../core/theme/theme_provider.dart';
 import '../../../../core/theme/app_theme_mode.dart';
-import '../../../../core/l10n/locale_provider.dart';
+import '../../../../core/theme/theme_provider.dart';
 import '../../../auth/application/providers/auth_provider.dart';
 import '../widgets/api_key_settings_section.dart';
 
@@ -23,30 +24,30 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // General settings section
-              const _GeneralSettingsSection(),
+              _GeneralSettingsSection(),
 
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
 
               // Project section (show current project and change button)
-              const _ProjectSection(),
+              _ProjectSection(),
 
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
 
               // API Key settings section (authenticated only)
-              const ApiKeySettingsSection(),
+              ApiKeySettingsSection(),
 
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
 
               // Account section
-              const _AccountSection(),
+              _AccountSection(),
             ],
           ),
         ),
@@ -62,6 +63,7 @@ class _GeneralSettingsSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final themeMode = ref.watch(themeModeProvider);
     final locale = ref.watch(localeProvider);
 
@@ -72,7 +74,7 @@ class _GeneralSettingsSection extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'General',
+              l10n.settings_general,
               style: theme.textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
@@ -86,8 +88,8 @@ class _GeneralSettingsSection extends ConsumerWidget {
                         ? Icons.light_mode
                         : Icons.brightness_auto,
               ),
-              title: const Text('Theme'),
-              subtitle: Text(_getThemeModeLabel(themeMode)),
+              title: Text(l10n.settings_theme),
+              subtitle: Text(_getThemeModeLabel(context, themeMode)),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () => _showThemeSelector(context, ref, themeMode),
             ),
@@ -97,7 +99,7 @@ class _GeneralSettingsSection extends ConsumerWidget {
             // Language selector
             ListTile(
               leading: const Icon(Icons.language),
-              title: const Text('Language'),
+              title: Text(l10n.settings_language),
               subtitle: Text(locale.languageCode.toUpperCase()),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () => _showLanguageSelector(context, ref, locale),
@@ -108,14 +110,15 @@ class _GeneralSettingsSection extends ConsumerWidget {
     );
   }
 
-  String _getThemeModeLabel(AppThemeMode mode) {
+  String _getThemeModeLabel(BuildContext context, AppThemeMode mode) {
+    final l10n = context.l10n;
     switch (mode) {
       case AppThemeMode.light:
-        return 'Light';
+        return l10n.settings_light;
       case AppThemeMode.dark:
-        return 'Dark';
+        return l10n.settings_dark;
       case AppThemeMode.blue:
-        return 'blue';
+        return l10n.settings_blue;
     }
   }
 
@@ -124,23 +127,24 @@ class _GeneralSettingsSection extends ConsumerWidget {
     WidgetRef ref,
     AppThemeMode currentMode,
   ) async {
+    final l10n = context.l10n;
     await showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Select Theme'),
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.settings_select_theme),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: AppThemeMode.values
               .map((mode) => RadioListTile<AppThemeMode>(
                     value: mode,
                     groupValue: currentMode,
-                    title: Text(_getThemeModeLabel(mode)),
+                    title: Text(_getThemeModeLabel(context, mode)),
                     onChanged: (value) {
                       if (value != null) {
                         ref
                             .read(themeModeProvider.notifier)
                             .setThemeMode(value);
-                        Navigator.of(context).pop();
+                        Navigator.of(dialogContext).pop();
                       }
                     },
                   ))
@@ -148,8 +152,8 @@ class _GeneralSettingsSection extends ConsumerWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(l10n.common_cancel),
           ),
         ],
       ),
@@ -161,37 +165,38 @@ class _GeneralSettingsSection extends ConsumerWidget {
     WidgetRef ref,
     Locale currentLocale,
   ) async {
+    final l10n = context.l10n;
     await showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Select Language'),
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.settings_select_language),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             RadioListTile<String>(
               value: 'en',
               groupValue: currentLocale.languageCode,
-              title: const Text('English'),
+              title: Text(l10n.settings_english),
               onChanged: (value) {
                 ref.read(localeProvider.notifier).setLocale(AppLocale.en);
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
               },
             ),
             RadioListTile<String>(
               value: 'ko',
               groupValue: currentLocale.languageCode,
-              title: const Text('한국어 (Korean)'),
+              title: Text(l10n.settings_korean),
               onChanged: (value) {
                 ref.read(localeProvider.notifier).setLocale(AppLocale.ko);
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
               },
             ),
           ],
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(l10n.common_cancel),
           ),
         ],
       ),
@@ -206,6 +211,7 @@ class _ProjectSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     final projectSession = ref.watch(projectSessionProvider);
 
     return Card(
@@ -215,7 +221,7 @@ class _ProjectSection extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Project',
+              l10n.projects_title,
               style: theme.textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
@@ -243,8 +249,8 @@ class _ProjectSection extends ConsumerWidget {
               // Change project button
               ListTile(
                 leading: const Icon(Icons.swap_horiz),
-                title: const Text('Change Project'),
-                subtitle: const Text('Select a different project'),
+                title: Text(l10n.settings_change_project),
+                subtitle: Text(l10n.settings_change_project_desc),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                 onTap: () => context.go(AppRoutes.projectSelection),
               ),
@@ -255,8 +261,8 @@ class _ProjectSection extends ConsumerWidget {
                   Icons.warning_amber,
                   color: theme.colorScheme.error,
                 ),
-                title: const Text('No Project Selected'),
-                subtitle: const Text('Select a project to get started'),
+                title: Text(l10n.settings_no_project_selected),
+                subtitle: Text(l10n.settings_no_project_desc),
               ),
 
               const Divider(),
@@ -265,7 +271,7 @@ class _ProjectSection extends ConsumerWidget {
               ElevatedButton.icon(
                 onPressed: () => context.go(AppRoutes.projectSelection),
                 icon: const Icon(Icons.add),
-                label: const Text('Select Project'),
+                label: Text(l10n.settings_select_project),
               ),
             ],
           ],
@@ -282,6 +288,7 @@ class _AccountSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     // Observe auth state
     final authStateAsync = ref.watch(authStateNotifierProvider);
@@ -307,8 +314,8 @@ class _AccountSection extends ConsumerWidget {
                 // User info
                 ListTile(
                   leading: const Icon(Icons.person),
-                  title: const Text('Signed in as'),
-                  subtitle: Text(authState.user.email ?? 'Unknown'),
+                  title: Text(l10n.settings_signed_in_as),
+                  subtitle: Text(authState.user.email),
                 ),
 
                 const Divider(),
@@ -317,7 +324,7 @@ class _AccountSection extends ConsumerWidget {
                 ListTile(
                   leading: Icon(Icons.logout, color: theme.colorScheme.error),
                   title: Text(
-                    'Sign Out',
+                    l10n.settings_sign_out,
                     style: TextStyle(color: theme.colorScheme.error),
                   ),
                   onTap: () => _handleLogout(context, ref),
@@ -334,25 +341,27 @@ class _AccountSection extends ConsumerWidget {
 
   /// Handle logout with confirmation
   Future<void> _handleLogout(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Sign Out'),
-        content: const Text(
-          'Are you sure you want to sign out? Your local data will remain saved.',
-        ),
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.settings_sign_out),
+        content: Text(l10n.settings_sign_out_confirmation),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.common_cancel),
           ),
           ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
+            onPressed: () {
+              ref.read(authStateNotifierProvider.notifier).signOut();
+              context.go(AppRoutes.login);
+            },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
+              backgroundColor: Theme.of(dialogContext).colorScheme.error,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Sign Out'),
+            child: Text(l10n.settings_sign_out),
           ),
         ],
       ),
@@ -380,7 +389,7 @@ class _AccountSection extends ConsumerWidget {
 
     // Show success message
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Signed out successfully')),
+      SnackBar(content: Text(l10n.settings_signed_out)),
     );
   }
 }

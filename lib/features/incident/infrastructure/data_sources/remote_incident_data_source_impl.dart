@@ -8,17 +8,22 @@ import '../models/incident_dto.dart';
 import '../models/ai_analysis_dto.dart';
 import 'incident_data_source.dart';
 
-/// Remote incident data source implementation using REST API
-/// Requires authentication with API key
+/// Remote incident data source implementation using REST API v3
+/// Requires authentication (Firebase JWT or API Key per README_V3.md)
 ///
-/// API Endpoints (v2 - Project-scoped):
-/// - GET    /api/v2/projects/:project_id/incidents                       - Get all incidents (with filters)
-/// - GET    /api/v2/projects/:project_id/incidents/:id                   - Get incident by ID
-/// - PATCH  /api/v2/projects/:project_id/incidents/:id                   - Update incident
-/// - POST   /api/v2/projects/:project_id/incidents/:id/acknowledge       - Acknowledge incident
-/// - POST   /api/v2/projects/:project_id/incidents/:id/resolve           - Resolve incident
-/// - GET    /api/v2/projects/:project_id/incidents/:id/analysis          - Get AI analysis
-/// - POST   /api/v2/projects/:project_id/incidents/:id/analysis          - Request AI analysis
+/// API Endpoints (v3 - Project-scoped):
+/// - GET    /api/v3/projects/{project_id}/incidents                          - List incidents (with filters)
+/// - GET    /api/v3/projects/{project_id}/incidents/{incident_id}            - Get incident details
+/// - PATCH  /api/v3/projects/{project_id}/incidents/{incident_id}            - Update incident
+/// - POST   /api/v3/projects/{project_id}/incidents/{incident_id}/acknowledge - Acknowledge incident
+/// - POST   /api/v3/projects/{project_id}/incidents/{incident_id}/resolve    - Resolve incident
+/// - GET    /api/v3/projects/{project_id}/incidents/{incident_id}/analysis   - Get AI analysis
+/// - POST   /api/v3/projects/{project_id}/incidents/{incident_id}/analysis   - Request AI analysis
+///
+/// Authentication Rules (per README_V3.md):
+/// - All endpoints require authentication
+/// - Authorization header (Bearer token) takes priority over X-API-Key
+/// - Project ownership is validated on every request
 class RemoteIncidentDataSourceImpl implements RemoteIncidentDataSource {
   final Dio _dio;
 
@@ -48,14 +53,10 @@ class RemoteIncidentDataSourceImpl implements RemoteIncidentDataSource {
       final response = await _dio.get(_baseUrl(projectId.toString()),
           queryParameters: queryParams);
 
-      print('test003, resp is $response'); // --- IGNORE ---
-
       // Response structure: { total, items: [...] }
       final Map<String, dynamic> responseData =
           response.data as Map<String, dynamic>;
-      print('test004, responseData is $responseData'); // --- IGNORE ---
       final List<dynamic> items = responseData['items'] as List<dynamic>;
-      print('test005, items is $items'); // --- IGNORE ---
       return items
           .map((json) =>
               IncidentDto.fromJson(json as Map<String, dynamic>).toDomain())
@@ -196,15 +197,31 @@ class RemoteIncidentDataSourceImpl implements RemoteIncidentDataSource {
   AppError _handleError(DioException error) {
     if (error.response != null) {
       final statusCode = error.response!.statusCode;
-      final message = error.response!.data?['message'] as String? ??
-          error.response!.data?['detail'] as String? ??
+      // v3 API returns errors in "detail" field per README_V3.md
+      final message = error.response!.data?['detail'] as String? ??
+          error.response!.data?['message'] as String? ??
           error.message;
 
       switch (statusCode) {
         case 401:
-          return UnauthorizedError(message: message ?? 'Unauthorized');
+          // Authentication failed (missing/invalid credentials)
+          return UnauthorizedError(
+            message: message ??
+                'Authentication required. Provide Firebase JWT or API key.',
+          );
+        case 403:
+          // Access denied (user doesn't own project or API key is invalid)
+          return UnauthorizedError(
+            message: message ?? 'Access denied. You do not own this project.',
+          );
         case 404:
           return NotFoundError(message: message ?? 'Incident not found');
+        case 422:
+          // Validation error
+          return ServerError(
+            message: message ?? 'Validation error',
+            statusCode: statusCode,
+          );
         default:
           return ServerError(
             message: message ?? 'Server error',

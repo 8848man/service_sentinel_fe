@@ -1,13 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/di/providers.dart';
+import '../../../../core/error/app_error.dart';
+import '../../../../core/extensions/context_extensions.dart';
+import '../../../auth/application/providers/auth_provider.dart';
+import '../../application/providers/bootstrap_provider.dart';
 import '../../application/providers/project_provider.dart';
+import '../../domain/entities/bootstrap.dart';
 import '../../domain/entities/project.dart';
 
 /// Project Create Dialog
 ///
 /// Modal dialog for creating a new project.
-/// Includes form validation and error handling.
-/// Consumes createProjectProvider for creation logic.
+/// Handles both authenticated and guest users:
+/// - Authenticated: Calls standard CreateProject use case
+/// - Guest (first time): Calls Bootstrap endpoint, then stores Guest API Key
+/// - Guest (subsequent): Calls standard CreateProject use case
 class ProjectCreateDialog extends ConsumerStatefulWidget {
   const ProjectCreateDialog({super.key});
 
@@ -39,15 +47,41 @@ class _ProjectCreateDialogState extends ConsumerState<ProjectCreateDialog> {
       _errorMessage = null;
     });
 
-    final createData = ProjectCreate(
-      name: _nameController.text.trim(),
-      description: _descriptionController.text.trim().isEmpty
-          ? null
-          : _descriptionController.text.trim(),
-    );
+    // Check authentication state
+    final authState = ref.read(authStateNotifierProvider).value;
 
-    final useCase = ref.read(createProjectProvider);
-    final result = await useCase.execute(createData);
+    if (authState == null) {
+      final l10n = context.l10n;
+      setState(() {
+        _isLoading = false;
+        _errorMessage = l10n.error_auth_unavailable;
+      });
+      return;
+    }
+
+    final name = _nameController.text.trim();
+    final description = _descriptionController.text.trim().isEmpty
+        ? null
+        : _descriptionController.text.trim();
+
+    Project? createdProject;
+
+    if (authState.isAuthenticated) {
+      // Authenticated user: Use standard create project flow
+      createdProject = await _createProjectAuthenticated(name, description);
+    } else {
+      // Guest user: Check if bootstrap is needed
+      final guestApiKeyService = ref.read(guestApiKeyServiceProvider);
+      final hasGuestKey = guestApiKeyService.hasGuestKey();
+
+      if (!hasGuestKey) {
+        // First time creating project: Bootstrap
+        createdProject = await _bootstrapGuestUser(name, description);
+      } else {
+        // Subsequent project creation: Use standard flow
+        createdProject = await _createProjectAuthenticated(name, description);
+      }
+    }
 
     if (!mounted) return;
 
@@ -55,23 +89,104 @@ class _ProjectCreateDialogState extends ConsumerState<ProjectCreateDialog> {
       _isLoading = false;
     });
 
-    if (result.isSuccess) {
+    if (createdProject != null) {
       // Invalidate projects list to refresh
       ref.invalidate(projectsProvider);
 
       // Close dialog and return the created project
-      Navigator.of(context).pop(result.dataOrNull);
-    } else {
-      setState(() {
-        _errorMessage = result.errorOrNull?.message ?? 'Failed to create project';
-      });
+      Navigator.of(context).pop(createdProject);
     }
+    // Error message already set by helper methods
+  }
+
+  /// Create project for authenticated users
+  Future<Project?> _createProjectAuthenticated(String name, String? description) async {
+    final createData = ProjectCreate(
+      name: name,
+      description: description,
+    );
+
+    final useCase = ref.read(createProjectProvider);
+    final result = await useCase.execute(createData);
+
+    if (result.isSuccess) {
+      return result.dataOrNull;
+    } else {
+      final error = result.errorOrNull;
+
+      // Check if it's a guest limit error
+      if (error is GuestProjectLimitError) {
+        if (!mounted) return null;
+        await _showGuestLimitDialog();
+        return null;
+      }
+
+      final l10n = context.l10n;
+      setState(() {
+        _errorMessage = error?.message ?? l10n.error_failed_to_create_project;
+      });
+      return null;
+    }
+  }
+
+  /// Bootstrap guest user (first project creation)
+  Future<Project?> _bootstrapGuestUser(String name, String? description) async {
+    final bootstrapRequest = BootstrapRequest(
+      name: name,
+      description: description,
+    );
+
+    final useCase = ref.read(bootstrapGuestUserProvider);
+    final result = await useCase.execute(bootstrapRequest);
+
+    if (result.isSuccess) {
+      // Bootstrap successful - Guest API Key is automatically stored by use case
+      final response = result.dataOrNull!;
+      return response.project;
+    } else {
+      final l10n = context.l10n;
+      setState(() {
+        _errorMessage = result.errorOrNull?.message ?? l10n.error_failed_to_bootstrap_guest;
+      });
+      return null;
+    }
+  }
+
+  /// Show guest limit dialog
+  /// Informs user that guest accounts are limited to 1 project
+  /// Provides option to sign in for unlimited projects
+  Future<void> _showGuestLimitDialog() async {
+    final l10n = context.l10n;
+
+    await showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.projects_guest_limit_reached),
+        content: Text(l10n.projects_guest_limit_message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(l10n.common_cancel),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              // Navigate back to login screen
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            },
+            child: Text(l10n.projects_sign_in),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return AlertDialog(
-      title: const Text('Create New Project'),
+      title: Text(l10n.projects_create_new_project),
       content: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -82,18 +197,18 @@ class _ProjectCreateDialogState extends ConsumerState<ProjectCreateDialog> {
               // Project Name Field
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Project Name *',
-                  hintText: 'Enter project name',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.projects_project_name_required,
+                  hintText: l10n.projects_project_name_hint,
+                  border: const OutlineInputBorder(),
                 ),
                 enabled: !_isLoading,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Project name is required';
+                    return l10n.validation_project_name_required;
                   }
                   if (value.length > 100) {
-                    return 'Project name cannot exceed 100 characters';
+                    return l10n.validation_project_name_max_length;
                   }
                   return null;
                 },
@@ -104,10 +219,10 @@ class _ProjectCreateDialogState extends ConsumerState<ProjectCreateDialog> {
               // Project Description Field
               TextFormField(
                 controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description (Optional)',
-                  hintText: 'Enter project description',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.projects_description_optional,
+                  hintText: l10n.projects_description_hint,
+                  border: const OutlineInputBorder(),
                 ),
                 enabled: !_isLoading,
                 maxLines: 3,
@@ -146,7 +261,7 @@ class _ProjectCreateDialogState extends ConsumerState<ProjectCreateDialog> {
         // Cancel Button
         TextButton(
           onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(l10n.common_cancel),
         ),
 
         // Create Button
@@ -158,7 +273,7 @@ class _ProjectCreateDialogState extends ConsumerState<ProjectCreateDialog> {
                   height: 20,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Text('Create'),
+              : Text(l10n.common_create),
         ),
       ],
     );

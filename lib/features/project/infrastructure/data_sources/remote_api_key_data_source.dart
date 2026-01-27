@@ -4,15 +4,19 @@ import '../../../../core/error/app_error.dart';
 import '../../domain/entities/api_key.dart';
 import '../models/api_key_dto.dart';
 
-/// Remote API key data source
+/// Remote API key data source for REST API v3
 /// API keys are server-only, no local storage exists
 ///
-/// API Endpoints:
-/// - GET    /api/v2/projects/:projectId/api-keys        - Get all API keys
-/// - POST   /api/v2/projects/:projectId/api-keys        - Create API key
-/// - DELETE /api/v2/projects/:projectId/api-keys/:keyId - Delete API key
-/// - POST   /api/v2/projects/:projectId/api-keys/:keyId/deactivate - Deactivate key
-/// - POST   /api/v2/auth/verify-key                     - Verify API key
+/// API Endpoints (v3):
+/// - POST   /api/v3/projects/{project_id}/api-keys           - Create API key (Firebase JWT only)
+/// - GET    /api/v3/projects/{project_id}/api-keys           - List API keys (Firebase JWT only)
+/// - DELETE /api/v3/projects/{project_id}/api-keys/{key_id}  - Delete API key (Firebase JWT only)
+/// - POST   /api/v3/projects/{project_id}/api-keys/{key_id}/deactivate - Deactivate key (Firebase JWT only)
+///
+/// Authentication Rules (per README_V3.md):
+/// - All API key management endpoints require Firebase JWT authentication
+/// - Guest users with API keys CANNOT manage API keys
+/// - Only the project owner (authenticated user) can create/manage API keys
 abstract class ApiKeyDataSource {
   Future<List<ApiKey>> getAll(String projectId);
   Future<ApiKey> create(String projectId, ApiKeyCreate data);
@@ -103,15 +107,31 @@ class RemoteApiKeyDataSourceImpl implements ApiKeyDataSource {
   AppError _handleError(DioException error) {
     if (error.response != null) {
       final statusCode = error.response!.statusCode;
-      final message = error.response!.data?['message'] as String? ??
-          error.response!.data?['detail'] as String? ??
+      // v3 API returns errors in "detail" field per README_V3.md
+      final message = error.response!.data?['detail'] as String? ??
+          error.response!.data?['message'] as String? ??
           error.message;
 
       switch (statusCode) {
         case 401:
-          return UnauthorizedError(message: message ?? 'Unauthorized');
+          // Authentication failed - Firebase JWT required for API key management
+          return UnauthorizedError(
+            message: message ??
+                'Authentication required. Only Firebase-authenticated users can manage API keys.',
+          );
+        case 403:
+          // Access denied (user doesn't own project)
+          return UnauthorizedError(
+            message: message ?? 'Access denied. You do not own this project.',
+          );
         case 404:
           return NotFoundError(message: message ?? 'API key not found');
+        case 422:
+          // Validation error
+          return ServerError(
+            message: message ?? 'Validation error',
+            statusCode: statusCode,
+          );
         default:
           return ServerError(
             message: message ?? 'Server error',

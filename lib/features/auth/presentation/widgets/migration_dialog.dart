@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/extensions/context_extensions.dart';
 
 /// Migration dialog - Shown when guest user logs in with local projects
 /// Blocking dialog that allows user to:
@@ -12,6 +13,7 @@ class MigrationDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return AlertDialog(
       icon: Icon(
@@ -19,47 +21,47 @@ class MigrationDialog extends StatelessWidget {
         size: 64,
         color: theme.colorScheme.primary,
       ),
-      title: const Text('Migrate Local Projects?'),
+      title: Text(l10n.auth_migration_dialog_title),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'You have local projects stored on this device. Would you like to migrate them to the cloud?',
+            l10n.auth_migration_dialog_message,
             style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: 16),
           _buildFeatureItem(
             context,
             Icons.cloud_done,
-            'Cloud Sync',
-            'Access your projects from any device',
+            l10n.auth_migration_cloud_sync,
+            l10n.auth_migration_cloud_sync_desc,
           ),
           const SizedBox(height: 8),
           _buildFeatureItem(
             context,
             Icons.backup,
-            'Backup',
-            'Your data is safely backed up',
+            l10n.auth_migration_backup,
+            l10n.auth_migration_backup_desc,
           ),
           const SizedBox(height: 8),
           _buildFeatureItem(
             context,
             Icons.group,
-            'Team Collaboration',
-            'Share projects with team members',
+            l10n.auth_migration_team,
+            l10n.auth_migration_team_desc,
           ),
         ],
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
-          child: const Text('Skip for Now'),
+          child: Text(l10n.auth_skip_for_now),
         ),
         ElevatedButton.icon(
           onPressed: () => Navigator.of(context).pop(true),
           icon: const Icon(Icons.cloud_upload),
-          label: const Text('Migrate Now'),
+          label: Text(l10n.auth_migrate_now),
         ),
       ],
     );

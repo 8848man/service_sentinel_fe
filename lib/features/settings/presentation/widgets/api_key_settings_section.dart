@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/state/project_session_notifier.dart';
 import '../../../auth/application/providers/auth_provider.dart';
 
@@ -22,6 +23,7 @@ class ApiKeySettingsSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     // Observe auth state and project session
     final authStateAsync = ref.watch(authStateNotifierProvider);
@@ -45,7 +47,7 @@ class ApiKeySettingsSection extends ConsumerWidget {
                 Row(
                   children: [
                     Text(
-                      'API Key',
+                      l10n.settings_api_key,
                       style: theme.textTheme.titleLarge,
                     ),
                     const Spacer(),
@@ -68,7 +70,7 @@ class ApiKeySettingsSection extends ConsumerWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            'Authenticated',
+                            l10n.settings_authenticated,
                             style: theme.textTheme.labelSmall?.copyWith(
                               color: theme.colorScheme.onPrimaryContainer,
                               fontWeight: FontWeight.bold,
@@ -81,16 +83,21 @@ class ApiKeySettingsSection extends ConsumerWidget {
                 ),
                 const SizedBox(height: 8),
                 if (projectSession.hasProject) ...[
-                  Text(
-                    'API key for project: ${projectSession.projectName ?? projectSession.projectId}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurface.withOpacity(0.7),
-                    ),
-                  ),
+                  // Text(
+                  //   l10n.settings_api_key_desc(
+                  //     projectSession.projectName ??
+                  //         projectSession.projectId ??
+                  //         '',
+                  //   ),
+                  //   style: theme.textTheme.bodySmall?.copyWith(
+                  //     color: theme.colorScheme.onSurface.withOpacity(0.7),
+                  //   ),
+                  // ),
                   if (projectSession.activeApiKeyName != null) ...[
                     const SizedBox(height: 4),
                     Text(
-                      'Active key: ${projectSession.activeApiKeyName}',
+                      l10n.settings_active_key(
+                          projectSession.activeApiKeyName!),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.primary,
                         fontWeight: FontWeight.w500,
@@ -99,7 +106,7 @@ class ApiKeySettingsSection extends ConsumerWidget {
                   ],
                 ] else
                   Text(
-                    'No project selected. Select a project to view API key.',
+                    l10n.settings_no_project_api_key,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.error.withOpacity(0.7),
                     ),
@@ -134,7 +141,7 @@ class ApiKeySettingsSection extends ConsumerWidget {
                         ),
                         IconButton(
                           icon: const Icon(Icons.copy, size: 20),
-                          tooltip: 'Copy to clipboard',
+                          tooltip: l10n.settings_copy_to_clipboard,
                           onPressed: () => _copyToClipboard(
                             context,
                             projectSession.activeApiKeyValue!,
@@ -145,7 +152,7 @@ class ApiKeySettingsSection extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Keep your API key secure. Do not share it publicly.',
+                    l10n.settings_security_warning,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.error,
                       fontStyle: FontStyle.italic,
@@ -170,23 +177,11 @@ class ApiKeySettingsSection extends ConsumerWidget {
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'No API Key',
-                                style: theme.textTheme.titleSmall?.copyWith(
-                                  color: theme.colorScheme.error,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'You need to select a project with an API key',
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.onErrorContainer,
-                                ),
-                              ),
-                            ],
+                          child: Text(
+                            l10n.settings_no_api_key,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              color: theme.colorScheme.error,
+                            ),
                           ),
                         ),
                       ],
@@ -204,16 +199,15 @@ class ApiKeySettingsSection extends ConsumerWidget {
                       onPressed: projectSession.hasProject
                           ? () {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Switch between API keys - Coming soon',
-                                  ),
+                                SnackBar(
+                                  content:
+                                      Text(l10n.settings_switch_key_response),
                                 ),
                               );
                             }
                           : null,
                       icon: const Icon(Icons.swap_horiz),
-                      label: const Text('Switch Key'),
+                      label: Text(l10n.settings_switch_key),
                     ),
                     const SizedBox(width: 8),
                     // Create new API key button (placeholder)
@@ -221,16 +215,15 @@ class ApiKeySettingsSection extends ConsumerWidget {
                       onPressed: projectSession.hasProject
                           ? () {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Create and manage API keys - Coming soon',
-                                  ),
+                                SnackBar(
+                                  content:
+                                      Text(l10n.settings_create_key_response),
                                 ),
                               );
                             }
                           : null,
                       icon: const Icon(Icons.add),
-                      label: const Text('Create Key'),
+                      label: Text(l10n.settings_create_key),
                     ),
                   ],
                 ),
@@ -263,13 +256,14 @@ class ApiKeySettingsSection extends ConsumerWidget {
   }
 
   Future<void> _copyToClipboard(BuildContext context, String text) async {
+    final l10n = context.l10n;
     await Clipboard.setData(ClipboardData(text: text));
 
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('API key copied to clipboard'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text(l10n.settings_api_key_copied),
+          duration: const Duration(seconds: 2),
         ),
       );
     }

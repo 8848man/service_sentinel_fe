@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:service_sentinel_fe_v2/core/constants/enums.dart';
+import '../../../../core/extensions/context_extensions.dart';
 import '../../application/providers/service_provider.dart';
 
 /// Service Detail Body Widget
@@ -17,6 +19,8 @@ class ServiceDetailBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+
     // Watch service data
     final serviceAsync = ref.watch(serviceByIdProvider(int.parse(serviceId)));
     final statsAsync =
@@ -33,7 +37,7 @@ class ServiceDetailBody extends ConsumerWidget {
             const Icon(Icons.error_outline, size: 48, color: Colors.red),
             const SizedBox(height: 16),
             Text(
-              'Error loading service',
+              l10n.services_error_loading_service,
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 8),
@@ -96,7 +100,9 @@ class ServiceDetailBody extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Text(
-                            service.isActive ? 'Active' : 'Inactive',
+                            service.isActive
+                                ? l10n.services_active
+                                : l10n.services_inactive,
                             style: TextStyle(
                               color:
                                   service.isActive ? Colors.green : Colors.grey,
@@ -112,45 +118,44 @@ class ServiceDetailBody extends ConsumerWidget {
                     // Service Configuration
                     _buildConfigRow(
                       context,
-                      'Endpoint',
+                      l10n.services_endpoint,
                       service.endpointUrl,
                       Icons.link,
                     ),
                     _buildConfigRow(
                       context,
-                      'Method',
-                      service.httpMethod.name.toUpperCase(),
+                      l10n.services_method,
+                      service.httpMethod.displayName(context),
                       Icons.http,
                     ),
                     _buildConfigRow(
                       context,
-                      'Type',
-                      // service.serviceType.displayName,
-                      service.serviceType.name,
+                      l10n.services_type,
+                      service.serviceType.displayName(context),
                       Icons.category,
                     ),
                     _buildConfigRow(
                       context,
-                      'Check Interval',
+                      l10n.services_check_interval_label,
                       '${service.checkIntervalSeconds}s',
                       Icons.timer,
                     ),
                     _buildConfigRow(
                       context,
-                      'Timeout',
+                      l10n.services_timeout_label,
                       '${service.timeoutSeconds}s',
                       Icons.hourglass_empty,
                     ),
                     _buildConfigRow(
                       context,
-                      'Failure Threshold',
+                      l10n.services_failure_threshold_label,
                       '${service.failureThreshold}',
                       Icons.warning,
                     ),
                     if (service.lastCheckedAt != null)
                       _buildConfigRow(
                         context,
-                        'Last Checked',
+                        l10n.services_last_checked_label,
                         _formatDateTime(service.lastCheckedAt!),
                         Icons.access_time,
                       ),
@@ -162,7 +167,7 @@ class ServiceDetailBody extends ConsumerWidget {
 
             // Service Statistics
             Text(
-              'Statistics (Last 7 Days)',
+              l10n.services_statistics_last_7_days,
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 12),
@@ -177,7 +182,7 @@ class ServiceDetailBody extends ConsumerWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
-                    'Unable to load statistics',
+                    l10n.services_unable_to_load_statistics,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Colors.red,
                         ),
@@ -194,35 +199,35 @@ class ServiceDetailBody extends ConsumerWidget {
                 children: [
                   _buildStatCard(
                     context,
-                    'Uptime',
+                    l10n.services_uptime,
                     '${stats.uptimePercentage.toStringAsFixed(1)}%',
                     Icons.check_circle,
                     Colors.green,
                   ),
                   _buildStatCard(
                     context,
-                    'Total Checks',
+                    l10n.services_total_checks,
                     stats.totalChecks.toString(),
                     Icons.analytics,
                     Colors.blue,
                   ),
                   _buildStatCard(
                     context,
-                    'Successful',
+                    l10n.services_successful,
                     stats.successfulChecks.toString(),
                     Icons.done,
                     Colors.green,
                   ),
                   _buildStatCard(
                     context,
-                    'Failed',
+                    l10n.services_failed,
                     stats.failedChecks.toString(),
                     Icons.error,
                     Colors.red,
                   ),
                   _buildStatCard(
                     context,
-                    'Avg Latency',
+                    l10n.services_avg_latency,
                     '${stats.averageLatencyMs.toStringAsFixed(0)}ms',
                     Icons.speed,
                     Colors.orange,
@@ -234,7 +239,7 @@ class ServiceDetailBody extends ConsumerWidget {
 
             // Placeholder: Health Check History
             Text(
-              'Health Check History',
+              l10n.services_health_check_history,
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 12),
@@ -243,7 +248,7 @@ class ServiceDetailBody extends ConsumerWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: Center(
                   child: Text(
-                    'Health check history will be displayed here',
+                    l10n.services_health_check_history_placeholder,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontStyle: FontStyle.italic,
                           color: Colors.grey,
@@ -256,7 +261,7 @@ class ServiceDetailBody extends ConsumerWidget {
 
             // Placeholder: Incidents
             Text(
-              'Related Incidents',
+              l10n.services_related_incidents,
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 12),
@@ -265,7 +270,7 @@ class ServiceDetailBody extends ConsumerWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: Center(
                   child: Text(
-                    'Related incidents will be displayed here',
+                    l10n.services_related_incidents_placeholder,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontStyle: FontStyle.italic,
                           color: Colors.grey,

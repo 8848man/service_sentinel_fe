@@ -16,18 +16,20 @@ part 'data_source_mode_provider.g.dart';
 /// UI widgets MUST NEVER check authentication state directly.
 @riverpod
 DataSourceMode dataSourceMode(DataSourceModeRef ref) {
-  // Watch authentication state
-  final authState = ref.watch(authStateNotifierProvider).value;
+  // // Watch authentication state
+  // final authState = ref.watch(authStateNotifierProvider).value;
 
-  if (authState == null) {
-    // Auth state not yet loaded, default to local
-    return DataSourceMode.local;
-  }
+  // if (authState == null) {
+  //   // Auth state not yet loaded, default to local
+  //   return DataSourceMode.local;
+  // }
 
-  // Determine mode based on authentication
-  return authState.isAuthenticated
-      ? DataSourceMode.server
-      : DataSourceMode.local;
+  // // Determine mode based on authentication
+  // return authState.isAuthenticated
+  //     ? DataSourceMode.server
+  //     : DataSourceMode.local;
+  /// do no edit this. local storage is disabled temporarily
+  return DataSourceMode.server;
 }
 
 /// Helper provider to check if currently using local storage

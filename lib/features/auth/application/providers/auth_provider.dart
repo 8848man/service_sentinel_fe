@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:service_sentinel_fe_v2/core/router/app_router.dart';
 import '../../../../core/storage/secure_storage.dart';
 import '../../../../core/di/repository_providers.dart';
 import '../../../../core/state/project_session_notifier.dart';
@@ -39,20 +40,25 @@ class AuthStateNotifier extends _$AuthStateNotifier {
   Future<void> signIn(String email, String password) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      final authRepo = ref.read(authRepositoryProvider);
-      final result = await authRepo.signInWithEmail(email, password);
+      try {
+        final authRepo = ref.read(authRepositoryProvider);
+        final result = await authRepo.signInWithEmail(email, password);
+        if (result.isSuccess) {
+          // 성공시 프로젝트 선택 페이지로 이동
+          ref.read(goRouterProvider).go(AppRoutes.projectSelection);
+          // Load stored project ID if any
+          final secureStorage = ref.read(secureStorageProvider);
+          final projectId = await secureStorage.getCurrentProjectId();
 
-      if (result.isSuccess) {
-        // Load stored project ID if any
-        final secureStorage = ref.read(secureStorageProvider);
-        final projectId = await secureStorage.getCurrentProjectId();
-
-        return AuthState.authenticated(
-          user: result.dataOrNull!,
-          currentProjectId: projectId,
-        );
-      } else {
-        throw result.errorOrNull!;
+          return AuthState.authenticated(
+            user: result.dataOrNull!,
+            currentProjectId: projectId,
+          );
+        } else {
+          throw result.errorOrNull!;
+        }
+      } catch (e) {
+        rethrow;
       }
     });
   }

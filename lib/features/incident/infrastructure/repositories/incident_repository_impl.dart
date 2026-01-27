@@ -31,8 +31,9 @@ class IncidentRepositoryImpl implements IncidentRepository {
         _getDataSourceMode = getDataSourceMode;
 
   IncidentDataSource get _currentDataSource {
-    final mode = _getDataSourceMode();
-    return mode.isLocal ? _localDataSource : _remoteDataSource;
+    return _remoteDataSource;
+    // final mode = _getDataSourceMode();
+    // return mode.isLocal ? _localDataSource : _remoteDataSource;
   }
 
   @override
@@ -42,7 +43,6 @@ class IncidentRepositoryImpl implements IncidentRepository {
     int? serviceId,
   }) async {
     try {
-      print('test002, IncidentRepositoryImpl.getAll called');
       final incidents = await _currentDataSource.getAll(
         projectId: projectId,
         status: status,
@@ -50,7 +50,6 @@ class IncidentRepositoryImpl implements IncidentRepository {
         serviceId: serviceId,
       );
 
-      print('test003, incidents fetched: ${incidents}');
       return Result.success(incidents);
     } catch (e) {
       return Result.failure(_handleError(e));
@@ -137,12 +136,6 @@ class IncidentRepositoryImpl implements IncidentRepository {
   @override
   Future<Result<AiAnalysis?>> getAnalysis(int incidentId) async {
     try {
-      final mode = _getDataSourceMode();
-      if (mode.isLocal) {
-        // AI analysis not available in local mode
-        return Result.success(null);
-      }
-
       final analysis = await _remoteDataSource.getAnalysis(
           projectId: projectId, incidentId: incidentId);
       return Result.success(analysis);
@@ -154,13 +147,6 @@ class IncidentRepositoryImpl implements IncidentRepository {
   @override
   Future<Result<void>> requestAnalysis(int incidentId) async {
     try {
-      final mode = _getDataSourceMode();
-      if (mode.isLocal) {
-        return Result.failure(AnalysisError(
-          message: 'AI analysis not available in local mode',
-        ));
-      }
-
       await _remoteDataSource.requestAnalysis(
           projectId: projectId, incidentId: incidentId);
       return Result.success(null);

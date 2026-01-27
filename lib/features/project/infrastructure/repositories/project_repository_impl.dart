@@ -1,3 +1,4 @@
+import 'package:service_sentinel_fe_v2/features/project/domain/entities/project_health.dart';
 import 'package:service_sentinel_fe_v2/features/project/infrastructure/data_sources/local_project_data_source_impl.dart';
 
 import '../../../../core/data/data_source_mode.dart';
@@ -71,6 +72,18 @@ class ProjectRepositoryImpl implements ProjectRepository {
 
       final stats = await _remoteDataSource.getStats(id);
       return Result.success(stats);
+    } catch (e) {
+      return Result.failure(_handleError(e));
+    }
+  }
+
+  @override
+  Future<Result<ProjectHealth>> getHealth(String id) async {
+    try {
+      // Health is ALWAYS server-only (never local)
+      // Backend calculates health on-demand from service states and incidents
+      final health = await _remoteDataSource.getHealth(id);
+      return Result.success(health);
     } catch (e) {
       return Result.failure(_handleError(e));
     }

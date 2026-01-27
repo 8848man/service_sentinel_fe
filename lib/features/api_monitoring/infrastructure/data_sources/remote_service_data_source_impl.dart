@@ -10,22 +10,23 @@ import '../models/service_dto.dart';
 import '../models/service_stats_dto.dart';
 import 'service_data_source.dart';
 
-/// Remote service data source implementation using REST API
-/// Requires authentication with API key
+/// Remote service data source implementation using REST API v3
+/// Requires authentication (Firebase JWT or API Key per README_V3.md)
 ///
-/// API Endpoints (v2 - Project-scoped):
-/// - GET    /api/v2/projects/:project_id/services                    - Get all services
-/// - GET    /api/v2/projects/:project_id/services/:id                - Get service by ID
-/// - POST   /api/v2/projects/:project_id/services                    - Create service
-/// - PATCH  /api/v2/projects/:project_id/services/:id                - Update service
-/// - DELETE /api/v2/projects/:project_id/services/:id                - Delete service
-/// - POST   /api/v2/projects/:project_id/services/:id/activate       - Activate service
-/// - POST   /api/v2/projects/:project_id/services/:id/deactivate     - Deactivate service
-/// - POST   /api/v2/projects/:project_id/services/:id/check-now      - Trigger manual check
-/// - GET    /api/v2/projects/:project_id/services/:id/health-checks  - Get health check history
-/// - GET    /api/v2/projects/:project_id/services/:id/health-checks/latest - Get latest health check
-/// - GET    /api/v2/projects/:project_id/services/:id/stats          - Get service statistics
-/// - GET    /api/v2/projects/:project_id/services/:id/incidents      - Get service incidents
+/// API Endpoints (v3 - Project-scoped):
+/// - POST   /api/v3/projects/{project_id}/services                       - Create service
+/// - GET    /api/v3/projects/{project_id}/services                       - List services
+/// - GET    /api/v3/projects/{project_id}/services/{service_id}          - Get service details
+/// - PATCH  /api/v3/projects/{project_id}/services/{service_id}          - Update service
+/// - DELETE /api/v3/projects/{project_id}/services/{service_id}          - Delete service
+/// - POST   /api/v3/projects/{project_id}/services/{service_id}/activate   - Activate monitoring
+/// - POST   /api/v3/projects/{project_id}/services/{service_id}/deactivate - Pause monitoring
+/// - POST   /api/v3/projects/{project_id}/services/{service_id}/check-now  - Trigger immediate check
+///
+/// Authentication Rules (per README_V3.md):
+/// - All endpoints require authentication
+/// - Authorization header (Bearer token) takes priority over X-API-Key
+/// - Project ownership is validated on every request
 class RemoteServiceDataSourceImpl implements RemoteServiceDataSource {
   final Dio _dio;
 
@@ -253,15 +254,30 @@ class RemoteServiceDataSourceImpl implements RemoteServiceDataSource {
   AppError _handleError(DioException error) {
     if (error.response != null) {
       final statusCode = error.response!.statusCode;
-      final message = error.response!.data?['message'] as String? ??
-          error.response!.data?['detail'] as String? ??
+      // v3 API returns errors in "detail" field per README_V3.md
+      final message = error.response!.data?['detail'] as String? ??
+          error.response!.data?['message'] as String? ??
           error.message;
 
       switch (statusCode) {
         case 401:
-          return UnauthorizedError(message: message ?? 'Unauthorized');
+          // Authentication failed (missing/invalid credentials)
+          return UnauthorizedError(
+            message: message ?? 'Authentication required. Provide Firebase JWT or API key.',
+          );
+        case 403:
+          // Access denied (user doesn't own project or API key is invalid)
+          return UnauthorizedError(
+            message: message ?? 'Access denied. You do not own this project.',
+          );
         case 404:
           return NotFoundError(message: message ?? 'Service not found');
+        case 422:
+          // Validation error
+          return ServerError(
+            message: message ?? 'Validation error',
+            statusCode: statusCode,
+          );
         default:
           return ServerError(
             message: message ?? 'Server error',

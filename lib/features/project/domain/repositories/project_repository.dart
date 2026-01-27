@@ -1,5 +1,6 @@
 import '../../../../core/error/result.dart';
 import '../entities/project.dart';
+import '../entities/project_health.dart';
 
 /// Project repository interface
 /// Abstracts local and remote data sources
@@ -15,6 +16,11 @@ abstract class ProjectRepository {
 
   /// Get project with statistics
   Future<Result<ProjectStats>> getStats(String id);
+
+  /// Get project health
+  /// Health is ALWAYS server-calculated from services and incidents
+  /// Returns aggregated health status, service counts, and active incidents
+  Future<Result<ProjectHealth>> getHealth(String id);
 
   /// Create new project
   /// Guest: Stores in Local DB with isLocalOnly=true

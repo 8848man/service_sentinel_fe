@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:service_sentinel_fe_v2/core/extensions/context_extensions.dart';
+import 'package:service_sentinel_fe_v2/l10n/app_localizations.dart';
 import '../../../../core/router/app_router.dart';
-import '../../../../core/l10n/app_localizations.dart';
 import '../../application/providers/auth_provider.dart';
 
 /// Splash screen - Initial loading screen
@@ -31,11 +32,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     if (!mounted) return;
 
     // Observe auth state from authStateNotifierProvider
-    final authStateAsync = ref.read(authStateNotifierProvider);
-
-    authStateAsync.when(
+    ref.read(authStateNotifierProvider).when(
       data: (authState) {
-        print(authState);
         if (!mounted) return;
 
         // If authenticated and has project context, go to main
@@ -65,7 +63,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     ref.watch(authStateNotifierProvider);
 
@@ -81,12 +79,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              l10n.translate('app.title'),
+              l10n.app_title,
               style: theme.textTheme.headlineMedium,
             ),
             const SizedBox(height: 8),
             Text(
-              l10n.translate('app.subtitle'),
+              l10n.app_subtitle,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurface.withOpacity(0.7),
               ),

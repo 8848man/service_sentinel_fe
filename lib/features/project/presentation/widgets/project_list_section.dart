@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/repository_providers.dart';
+import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/state/project_session_notifier.dart';
 import '../../../../core/storage/secure_storage.dart';
@@ -26,6 +27,7 @@ class ProjectListSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     // Observe projects from projectsProvider (calls LoadProjects use case)
     final projectsAsync = ref.watch(projectsProvider);
@@ -37,13 +39,13 @@ class ProjectListSection extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Your Projects',
+              l10n.projects_your_projects,
               style: theme.textTheme.titleLarge,
             ),
             ElevatedButton.icon(
               onPressed: () => _showCreateProjectDialog(context, ref),
               icon: const Icon(Icons.add),
-              label: const Text('New Project'),
+              label: Text(l10n.projects_new_project),
             ),
           ],
         ),
@@ -82,7 +84,7 @@ class ProjectListSection extends ConsumerWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Failed to load projects',
+                    l10n.projects_failed_to_load,
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: theme.colorScheme.error,
                     ),
@@ -99,7 +101,7 @@ class ProjectListSection extends ConsumerWidget {
                   ElevatedButton.icon(
                     onPressed: () => ref.refresh(projectsProvider),
                     icon: const Icon(Icons.refresh),
-                    label: const Text('Retry'),
+                    label: Text(l10n.common_retry),
                   ),
                 ],
               ),
@@ -111,6 +113,8 @@ class ProjectListSection extends ConsumerWidget {
   }
 
   Widget _buildEmptyState(BuildContext context, ThemeData theme) {
+    final l10n = context.l10n;
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
@@ -123,12 +127,12 @@ class ProjectListSection extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'No Projects Yet',
+              l10n.projects_no_projects_yet,
               style: theme.textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
             Text(
-              'Create your first project to start monitoring your services',
+              l10n.projects_create_first_project,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurface.withOpacity(0.7),
               ),
@@ -146,6 +150,8 @@ class ProjectListSection extends ConsumerWidget {
     Project project,
     ThemeData theme,
   ) {
+    final l10n = context.l10n;
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
@@ -172,7 +178,7 @@ class ProjectListSection extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  'Inactive',
+                  l10n.services_inactive,
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: theme.colorScheme.onErrorContainer,
                   ),
@@ -214,7 +220,6 @@ class ProjectListSection extends ConsumerWidget {
       }
       final projectSession = ref.read(projectSessionProvider.notifier);
       final secureStorage = ref.read(secureStorageProvider);
-
       if (authState.isAuthenticated) {
         // For authenticated users, fetch API keys from backend
         final apiKeyRepository = ref.read(apiKeyRepositoryProvider);
@@ -224,11 +229,12 @@ class ProjectListSection extends ConsumerWidget {
 
         if (apiKeysResult.isFailure) {
           if (context.mounted) {
+            final l10n = context.l10n;
             Navigator.of(context).pop();
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(
-                    'Failed to load API keys: ${apiKeysResult.errorOrNull?.message}'),
+                content: Text(l10n.projects_failed_to_load_api_keys(
+                    apiKeysResult.errorOrNull?.message ?? '')),
                 backgroundColor: Colors.red,
               ),
             );
@@ -303,6 +309,9 @@ class ProjectListSection extends ConsumerWidget {
       } else {
         // Guest mode - no API key needed
         await projectSession.selectProject(project);
+        await ref.read(authStateNotifierProvider.notifier).setProjectContext(
+              project.id.toString(),
+            );
       }
 
       // Persist selected project ID
@@ -310,15 +319,16 @@ class ProjectListSection extends ConsumerWidget {
 
       // Close loading and navigate to main dashboard
       if (context.mounted) {
-        Navigator.of(context).pop();
+        // Navigator.of(context).pop();
         context.go(AppRoutes.dashboard);
       }
     } catch (e) {
       if (context.mounted) {
+        final l10n = context.l10n;
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error selecting project: $e'),
+            content: Text(l10n.projects_error_selecting(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -329,15 +339,14 @@ class ProjectListSection extends ConsumerWidget {
   /// Show warning when no API key is configured
   void _showNoApiKeyWarning(BuildContext context, Project project) {
     if (context.mounted) {
+      final l10n = context.l10n;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text(
-            'No API key configured for this project. Please create one in settings.',
-          ),
+          content: Text(l10n.projects_no_api_key_warning),
           backgroundColor: Colors.orange,
           duration: const Duration(seconds: 5),
           action: SnackBarAction(
-            label: 'Settings',
+            label: l10n.settings_title,
             textColor: Colors.white,
             onPressed: () {
               context.go(AppRoutes.settings);

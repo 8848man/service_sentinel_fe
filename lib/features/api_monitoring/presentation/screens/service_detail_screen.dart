@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
 import '../../application/providers/service_provider.dart';
 import '../widgets/service_detail_body.dart';
@@ -22,28 +23,29 @@ class ServiceDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Service Details'),
+        title: Text(l10n.services_service_details),
         actions: [
           IconButton(
             icon: const Icon(Icons.play_arrow),
-            tooltip: 'Run Health Check',
+            tooltip: l10n.services_manual_check_coming_soon,
             onPressed: () {
               // TODO: Trigger manual health check
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('Manual check feature coming soon')),
+                SnackBar(content: Text(l10n.services_manual_check_coming_soon)),
               );
             },
           ),
           IconButton(
             icon: const Icon(Icons.edit),
-            tooltip: 'Edit Service',
+            tooltip: l10n.services_edit_coming_soon,
             onPressed: () {
               // TODO: Navigate to service edit screen
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Edit feature coming soon')),
+                SnackBar(content: Text(l10n.services_edit_coming_soon)),
               );
             },
           ),
@@ -54,29 +56,29 @@ class ServiceDetailScreen extends ConsumerWidget {
               } else if (value == 'deactivate') {
                 // TODO: Deactivate service
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('Deactivate feature coming soon')),
+                  SnackBar(content: Text(l10n.services_deactivate_coming_soon)),
                 );
               }
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'deactivate',
                 child: Row(
                   children: [
-                    Icon(Icons.pause),
-                    SizedBox(width: 8),
-                    Text('Deactivate'),
+                    const Icon(Icons.pause),
+                    const SizedBox(width: 8),
+                    Text(l10n.services_deactivate),
                   ],
                 ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'delete',
                 child: Row(
                   children: [
-                    Icon(Icons.delete, color: Colors.red),
-                    SizedBox(width: 8),
-                    Text('Delete', style: TextStyle(color: Colors.red)),
+                    const Icon(Icons.delete, color: Colors.red),
+                    const SizedBox(width: 8),
+                    Text(l10n.services_delete_service,
+                        style: const TextStyle(color: Colors.red)),
                   ],
                 ),
               ),
@@ -90,25 +92,25 @@ class ServiceDetailScreen extends ConsumerWidget {
 
   Future<void> _showDeleteConfirmation(
       BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
+
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Service'),
-        content: const Text(
-          'Are you sure you want to delete this service? This will remove all monitoring data. This action cannot be undone.',
-        ),
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.services_delete_service),
+        content: Text(l10n.services_delete_confirmation_message),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.common_cancel),
           ),
           ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Delete'),
+            child: Text(l10n.common_delete),
           ),
         ],
       ),
@@ -139,14 +141,16 @@ class ServiceDetailScreen extends ConsumerWidget {
       // Navigate back
       Navigator.of(context).pop();
 
+      final l10n = context.l10n;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Service deleted successfully')),
+        SnackBar(content: Text(l10n.services_service_deleted)),
       );
     } else {
+      final l10n = context.l10n;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content:
-              Text('Failed to delete service: ${result.errorOrNull?.message}'),
+          content: Text(l10n
+              .services_failed_to_delete(result.errorOrNull?.message ?? '')),
           backgroundColor: Colors.red,
         ),
       );

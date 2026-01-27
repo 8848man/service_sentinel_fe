@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
+import 'package:service_sentinel_fe_v2/core/router/app_router.dart';
+import '../../../../core/extensions/context_extensions.dart';
 import '../../../auth/application/providers/auth_provider.dart';
 import '../widgets/project_list_section.dart';
 import '../widgets/project_header_section.dart';
@@ -22,11 +24,11 @@ class ProjectSelectionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.translate('app.title')),
+        title: Text(l10n.app_title),
         actions: [
           // Logout action (ConsumerWidget)
           Consumer(
@@ -35,15 +37,26 @@ class ProjectSelectionScreen extends StatelessWidget {
               final isAuthenticated = authState?.isAuthenticated ?? false;
 
               if (!isAuthenticated) {
-                return const SizedBox.shrink();
+                return IconButton(
+                  icon: const Icon(Icons.login),
+                  tooltip: l10n.projects_sign_in,
+                  onPressed: () async {
+                    if (context.mounted) {
+                      context.go(AppRoutes.login);
+                    }
+                  },
+                );
               }
 
               return IconButton(
                 icon: const Icon(Icons.logout),
-                tooltip: 'Sign Out',
+                tooltip: l10n.settings_sign_out,
                 onPressed: () async {
                   // Call authStateNotifierProvider.signOut()
                   await ref.read(authStateNotifierProvider.notifier).signOut();
+                  if (context.mounted) {
+                    context.go(AppRoutes.login);
+                  }
                 },
               );
             },

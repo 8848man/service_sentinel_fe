@@ -24,6 +24,7 @@ class ServiceDto with _$ServiceDto {
     @JsonKey(name: 'check_interval_seconds') required int checkIntervalSeconds,
     @JsonKey(name: 'failure_threshold') required int failureThreshold,
     @JsonKey(name: 'is_active') required bool isActive,
+    @JsonKey(name: 'service_state') String? serviceState,
     @JsonKey(name: 'created_at') required String createdAt,
     @JsonKey(name: 'updated_at') required String updatedAt,
     @JsonKey(name: 'last_checked_at') String? lastCheckedAt,
@@ -51,6 +52,7 @@ class ServiceDto with _$ServiceDto {
       checkIntervalSeconds: checkIntervalSeconds,
       failureThreshold: failureThreshold,
       isActive: isActive,
+      serviceState: serviceState != null ? _parseServiceState(serviceState!) : null,
       createdAt: DateTime.parse(createdAt),
       updatedAt: DateTime.parse(updatedAt),
       lastCheckedAt:
@@ -81,6 +83,19 @@ class ServiceDto with _$ServiceDto {
         return ServiceType.grpc;
       default:
         return ServiceType.httpsApi;
+    }
+  }
+
+  ServiceState _parseServiceState(String value) {
+    switch (value.toLowerCase()) {
+      case 'healthy':
+        return ServiceState.healthy;
+      case 'error':
+        return ServiceState.error;
+      case 'inactive':
+        return ServiceState.inactive;
+      default:
+        return ServiceState.healthy; // Default fallback
     }
   }
 }

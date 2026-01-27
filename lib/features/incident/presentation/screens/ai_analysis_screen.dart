@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../application/providers/incident_provider.dart';
-import '../../domain/repositories/incident_repository.dart';
-import '../../../../core/di/repository_providers.dart';
+import 'package:service_sentinel_fe_v2/core/di/repository_providers.dart';
+import '../../../../core/extensions/context_extensions.dart';
 import '../widgets/ai_analysis_view.dart';
 
 part 'ai_analysis_screen.g.dart';
@@ -16,22 +15,23 @@ part 'ai_analysis_screen.g.dart';
 /// Route: /incident/:id/analysis
 /// Parameters: incidentId (String)
 class AiAnalysisScreen extends ConsumerWidget {
-  final String incidentId;
-
   const AiAnalysisScreen({
-    super.key,
     required this.incidentId,
+    super.key,
   });
+  final String incidentId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('AI Root Cause Analysis'),
+        title: Text(l10n.incidents_ai_root_cause),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            tooltip: 'Refresh Analysis',
+            tooltip: l10n.analysis_refresh,
             onPressed: () {
               // Refresh by invalidating the provider
               ref.invalidate(aiAnalysisProvider(incidentId));
@@ -45,13 +45,13 @@ class AiAnalysisScreen extends ConsumerWidget {
 
           return analysisAsync.when(
             data: (analysis) => AiAnalysisView(analysis: analysis),
-            loading: () => const Center(
+            loading: () => Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Loading AI Analysis...'),
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 16),
+                  Text(l10n.analysis_loading),
                 ],
               ),
             ),
@@ -68,7 +68,7 @@ class AiAnalysisScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Failed to Load Analysis',
+                      l10n.incidents_failed_to_load_analysis,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 8),
@@ -83,7 +83,7 @@ class AiAnalysisScreen extends ConsumerWidget {
                         ref.invalidate(aiAnalysisProvider(incidentId));
                       },
                       icon: const Icon(Icons.refresh),
-                      label: const Text('Retry'),
+                      label: Text(l10n.common_retry),
                     ),
                   ],
                 ),

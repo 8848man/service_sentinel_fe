@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/extensions/context_extensions.dart';
 
 /// Analysis Overview Body Widget
 ///
@@ -10,6 +11,8 @@ class AnalysisOverviewBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -17,7 +20,7 @@ class AnalysisOverviewBody extends ConsumerWidget {
         children: [
           // Summary Cards
           Text(
-            'Analysis Summary',
+            l10n.analysis_summary,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 12),
@@ -31,28 +34,28 @@ class AnalysisOverviewBody extends ConsumerWidget {
             children: [
               _buildSummaryCard(
                 context,
-                'Total Analyses',
+                l10n.analysis_total_analyses,
                 '0',
                 Icons.analytics,
                 Colors.blue,
               ),
               _buildSummaryCard(
                 context,
-                'Pending',
+                l10n.analysis_pending,
                 '0',
                 Icons.pending,
                 Colors.orange,
               ),
               _buildSummaryCard(
                 context,
-                'Completed',
+                l10n.analysis_completed,
                 '0',
                 Icons.check_circle,
                 Colors.green,
               ),
               _buildSummaryCard(
                 context,
-                'Failed',
+                l10n.analysis_failed,
                 '0',
                 Icons.error,
                 Colors.red,
@@ -63,7 +66,7 @@ class AnalysisOverviewBody extends ConsumerWidget {
 
           // Recent Analyses
           Text(
-            'Recent AI Analyses',
+            l10n.analysis_recent_analyses,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 12),
@@ -81,14 +84,14 @@ class AnalysisOverviewBody extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'No AI analyses yet',
+                      l10n.analysis_no_analyses,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             color: Colors.grey,
                           ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Request AI analysis on incidents to get started',
+                      l10n.analysis_no_analyses_message,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontStyle: FontStyle.italic,
                             color: Colors.grey,
@@ -104,7 +107,7 @@ class AnalysisOverviewBody extends ConsumerWidget {
 
           // Analysis Insights Placeholder
           Text(
-            'Insights & Recommendations',
+            l10n.analysis_insights_recommendations,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 12),
@@ -119,35 +122,35 @@ class AnalysisOverviewBody extends ConsumerWidget {
                       const Icon(Icons.lightbulb, color: Colors.amber),
                       const SizedBox(width: 8),
                       Text(
-                        'AI-Powered Insights',
+                        l10n.analysis_ai_powered_insights,
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                     ],
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'AI will analyze your incident patterns and provide recommendations:',
+                    l10n.analysis_insights_message,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(height: 8),
                   _buildInsightItem(
                     context,
-                    'Root cause identification',
+                    l10n.analysis_insight_root_cause,
                     Icons.search,
                   ),
                   _buildInsightItem(
                     context,
-                    'Pattern detection across incidents',
+                    l10n.analysis_insight_pattern_detection,
                     Icons.pattern,
                   ),
                   _buildInsightItem(
                     context,
-                    'Suggested remediation steps',
+                    l10n.analysis_insight_remediation,
                     Icons.build,
                   ),
                   _buildInsightItem(
                     context,
-                    'Prevention recommendations',
+                    l10n.analysis_insight_prevention,
                     Icons.shield,
                   ),
                 ],
@@ -173,7 +176,7 @@ class AnalysisOverviewBody extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Authentication Required',
+                        l10n.analysis_auth_required,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                               color: Colors.blue,
                               fontWeight: FontWeight.bold,
@@ -181,7 +184,7 @@ class AnalysisOverviewBody extends ConsumerWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'AI analysis is only available for authenticated users with server access.',
+                        l10n.analysis_auth_required_message,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: Colors.blue.shade700,
                             ),

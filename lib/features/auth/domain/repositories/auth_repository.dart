@@ -25,4 +25,9 @@ abstract class AuthRepository {
 
   /// Check if user is currently authenticated
   Future<bool> isAuthenticated();
+
+  /// Get Firebase ID token for authenticated user
+  /// Returns null if user is not authenticated
+  /// forceRefresh: Forces token refresh if true
+  Future<String?> getIdToken({bool forceRefresh = false});
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:service_sentinel_fe_v2/core/extensions/context_extensions.dart';
 import '../router/app_router.dart';
-import '../l10n/app_localizations.dart';
 
 /// Main scaffold with bottom navigation
 class MainScaffold extends StatelessWidget {
@@ -14,7 +14,7 @@ class MainScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
+    final l10n = context.l10n;
     final currentPath = GoRouterState.of(context).uri.path;
 
     return Scaffold(
@@ -26,22 +26,22 @@ class MainScaffold extends StatelessWidget {
           NavigationDestination(
             icon: const Icon(Icons.dashboard_outlined),
             selectedIcon: const Icon(Icons.dashboard),
-            label: l10n.translate('navigation.dashboard'),
+            label: l10n.navigation_dashboard,
           ),
           NavigationDestination(
             icon: const Icon(Icons.cloud_outlined),
             selectedIcon: const Icon(Icons.cloud),
-            label: l10n.translate('navigation.services'),
+            label: l10n.navigation_services,
           ),
           NavigationDestination(
             icon: const Icon(Icons.warning_amber_outlined),
             selectedIcon: const Icon(Icons.warning_amber),
-            label: l10n.translate('navigation.incidents'),
+            label: l10n.navigation_incidents,
           ),
           NavigationDestination(
             icon: const Icon(Icons.settings_outlined),
             selectedIcon: const Icon(Icons.settings),
-            label: l10n.translate('navigation.settings'),
+            label: l10n.navigation_settings,
           ),
         ],
       ),

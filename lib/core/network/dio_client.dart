@@ -1,17 +1,35 @@
 import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:logger/logger.dart';
 import '../config/app_config.dart';
+import '../infrastructure/guest_api_key_service.dart';
+import 'authentication_interceptor.dart';
 
 /// Dio HTTP client configuration
+///
+/// Integrates authentication and Guest API Key management via interceptors.
+/// Does NOT directly manage auth logic - delegates to AuthenticationInterceptor.
+///
+/// Architecture:
+/// - Firebase Auth for authenticated users (Authorization header)
+/// - Guest API Key for unauthenticated users (X-API-KEY header)
+/// - Interceptor handles header injection based on auth state
+/// - Logging interceptor for debugging
 class DioClient {
   late final Dio _dio;
   final Logger _logger = Logger();
+  final fb.FirebaseAuth _firebaseAuth;
+  final GuestApiKeyService _guestApiKeyService;
 
-  DioClient() {
+  DioClient(
+    this._firebaseAuth,
+    this._guestApiKeyService,
+  ) {
     _dio = Dio(
       BaseOptions(
         baseUrl: AppConfig.apiUrl,
-        connectTimeout: const Duration(milliseconds: AppConfig.connectionTimeout),
+        connectTimeout:
+            const Duration(milliseconds: AppConfig.connectionTimeout),
         receiveTimeout: const Duration(milliseconds: AppConfig.receiveTimeout),
         headers: {
           'Content-Type': 'application/json',
@@ -26,8 +44,14 @@ class DioClient {
   /// Get configured Dio instance
   Dio get dio => _dio;
 
-  /// Set up interceptors for logging and error handling
+  /// Set up interceptors for authentication and logging
   void _setupInterceptors() {
+    // Add authentication interceptor first (injects auth headers and handles 401)
+    _dio.interceptors.add(
+      AuthenticationInterceptor(_firebaseAuth, _guestApiKeyService),
+    );
+
+    // Add logging interceptor for debugging
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
@@ -63,15 +87,5 @@ class DioClient {
         },
       ),
     );
-  }
-
-  /// Add API Key to headers
-  void setApiKey(String apiKey) {
-    _dio.options.headers[AppConfig.apiKeyHeader] = apiKey;
-  }
-
-  /// Remove API Key from headers
-  void clearApiKey() {
-    _dio.options.headers.remove(AppConfig.apiKeyHeader);
   }
 }

@@ -3,19 +3,26 @@ import '../../../../core/config/app_config.dart';
 import '../../../../core/error/app_error.dart';
 import '../../../../core/error/result.dart';
 import '../../domain/entities/project.dart';
+import '../../domain/entities/project_health.dart';
 import '../models/project_dto.dart';
+import '../models/project_health_dto.dart';
 import 'project_data_source.dart';
 
-/// Remote project data source implementation using REST API
-/// Requires authentication with API key
+/// Remote project data source implementation using REST API v3
+/// Requires authentication (Firebase JWT or API Key per README_V3.md)
 ///
-/// API Endpoints:
-/// - GET    /api/v2/projects        - Get all projects
-/// - GET    /api/v2/projects/:id    - Get project by ID
-/// - POST   /api/v2/projects        - Create project
-/// - PUT    /api/v2/projects/:id    - Update project
-/// - DELETE /api/v2/projects/:id    - Delete project
-/// - GET    /api/v2/projects/:id/stats - Get project statistics
+/// API Endpoints (v3):
+/// - POST   /api/v3/projects        - Create project (Firebase JWT only)
+/// - GET    /api/v3/projects        - List projects (Firebase JWT only)
+/// - GET    /api/v3/projects/{id}   - Get project by ID
+/// - PATCH  /api/v3/projects/{id}   - Update project
+/// - DELETE /api/v3/projects/{id}   - Delete project
+/// - GET    /api/v3/projects/{id}/stats - Get project statistics
+///
+/// Authentication Rules (per README_V3.md):
+/// - All endpoints require authentication
+/// - Authorization header (Bearer token) takes priority over X-API-Key
+/// - Project creation and listing require Firebase JWT (Guest cannot access)
 class RemoteProjectDataSourceImpl implements RemoteProjectDataSource {
   final Dio _dio;
 
@@ -67,7 +74,8 @@ class RemoteProjectDataSourceImpl implements RemoteProjectDataSource {
   Future<Project> update(String id, ProjectUpdate data) async {
     try {
       final dto = ProjectUpdateDto.fromDomain(data);
-      final response = await _dio.put(
+      // v3 uses PATCH instead of PUT
+      final response = await _dio.patch(
         '$_baseUrl/$id',
         data: dto.toJson(),
       );
@@ -110,18 +118,48 @@ class RemoteProjectDataSourceImpl implements RemoteProjectDataSource {
     }
   }
 
+  @override
+  Future<ProjectHealth> getHealth(String id) async {
+    try {
+      final response = await _dio.get('$_baseUrl/$id/health');
+      final dto = ProjectHealthDto.fromJson(response.data as Map<String, dynamic>);
+      return dto.toDomain();
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   AppError _handleError(DioException error) {
     if (error.response != null) {
       final statusCode = error.response!.statusCode;
-      final message = error.response!.data?['message'] as String? ??
-          error.response!.data?['detail'] as String? ??
+      // v3 API returns errors in "detail" field per README_V3.md
+      final message = error.response!.data?['detail'] as String? ??
+          error.response!.data?['message'] as String? ??
           error.message;
 
       switch (statusCode) {
         case 401:
-          return UnauthorizedError(message: message ?? 'Unauthorized');
+          // Authentication failed (missing/invalid credentials)
+          return UnauthorizedError(
+            message: message ?? 'Authentication required. Provide Firebase JWT or API key.',
+          );
+        case 403:
+          // Check if it's a guest project limit error
+          if (message?.contains('Guest users are limited to') ?? false) {
+            return GuestProjectLimitError(message: message!);
+          }
+          // Access denied (user doesn't own project or API key is invalid)
+          return UnauthorizedError(
+            message: message ?? 'Access denied. You do not own this project.',
+          );
         case 404:
           return NotFoundError(message: message ?? 'Project not found');
+        case 422:
+          // Validation error
+          return ServerError(
+            message: message ?? 'Validation error',
+            statusCode: statusCode,
+          );
         default:
           return ServerError(
             message: message ?? 'Server error',

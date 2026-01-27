@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:service_sentinel_fe_v2/core/di/providers.dart';
 import '../../../../core/di/repository_providers.dart';
 import '../../../../core/error/result.dart';
 import '../../domain/entities/project.dart';
@@ -45,6 +46,11 @@ DeleteProject deleteProject(DeleteProjectRef ref) {
 /// This provider auto-refreshes when dependencies change
 @riverpod
 Future<List<Project>> projects(ProjectsRef ref) async {
+  final guestApiKeyService = ref.watch(guestApiKeyServiceProvider);
+  final guestKey = guestApiKeyService.getGuestKey();
+  if (guestKey == null) {
+    return List<Project>.empty();
+  }
   final useCase = ref.watch(loadProjectsProvider);
   final result = await useCase.execute();
 

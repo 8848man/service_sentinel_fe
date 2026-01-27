@@ -90,3 +90,13 @@ class UndefinedError extends AppError {
 class AnalysisError extends AppError {
   AnalysisError({required super.message, super.code, super.originalError});
 }
+
+/// Guest user project limit exceeded
+/// Thrown when guest users attempt to create more than allowed projects
+class GuestProjectLimitError extends AppError {
+  GuestProjectLimitError({
+    required super.message,
+    super.code,
+    super.originalError,
+  });
+}

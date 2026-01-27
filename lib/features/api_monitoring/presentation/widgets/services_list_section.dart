@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/enums.dart';
+import '../../../../core/extensions/context_extensions.dart';
 import '../../application/providers/service_provider.dart';
 import '../../domain/entities/service.dart';
 import 'create_service_dialog.dart';
@@ -19,6 +20,7 @@ class ServicesListSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     // Observe services from servicesProvider (calls LoadServices use case)
     final servicesAsync = ref.watch(servicesProvider);
@@ -33,12 +35,12 @@ class ServicesListSection extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Monitored Services',
+                  l10n.services_monitored_services,
                   style: theme.textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'APIs and endpoints being monitored',
+                  l10n.services_monitored_services_desc,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurface.withOpacity(0.7),
                   ),
@@ -48,7 +50,7 @@ class ServicesListSection extends ConsumerWidget {
             ElevatedButton.icon(
               onPressed: () => _showCreateServiceDialog(context, ref),
               icon: const Icon(Icons.add),
-              label: const Text('Add Service'),
+              label: Text(l10n.services_add_service),
             ),
           ],
         ),
@@ -86,7 +88,7 @@ class ServicesListSection extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Failed to load services',
+                    l10n.services_failed_to_load,
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: theme.colorScheme.error,
                     ),
@@ -103,7 +105,7 @@ class ServicesListSection extends ConsumerWidget {
                   ElevatedButton.icon(
                     onPressed: () => ref.refresh(servicesProvider),
                     icon: const Icon(Icons.refresh),
-                    label: const Text('Retry'),
+                    label: Text(l10n.common_retry),
                   ),
                 ],
               ),
@@ -115,6 +117,7 @@ class ServicesListSection extends ConsumerWidget {
   }
 
   Widget _buildEmptyState(BuildContext context, ThemeData theme) {
+    final l10n = context.l10n;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(48.0),
@@ -127,12 +130,12 @@ class ServicesListSection extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'No Services Yet',
+              l10n.services_no_services_yet,
               style: theme.textTheme.titleLarge,
             ),
             const SizedBox(height: 8),
             Text(
-              'Add your first service to start monitoring',
+              l10n.services_no_services_message,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurface.withOpacity(0.7),
               ),
@@ -150,6 +153,8 @@ class ServicesListSection extends ConsumerWidget {
     ThemeData theme,
   ) {
     return Card(
+      // color: _getServiceCardColor(
+      //     service.serviceState ?? ServiceState.healthy, theme),
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -184,8 +189,12 @@ class ServicesListSection extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
+
+                _buildHealthStatus(service.serviceState ?? ServiceState.healthy,
+                    theme, context),
+                const SizedBox(width: 8),
                 // Active/Inactive badge
-                _buildStatusBadge(service.isActive, theme),
+                _buildStatusBadge(service.isActive, theme, context),
               ],
             ),
             const SizedBox(height: 12),
@@ -195,13 +204,14 @@ class ServicesListSection extends ConsumerWidget {
               children: [
                 // HTTP Method
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: _getHttpMethodColor(service.httpMethod, theme),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
-                    service.httpMethod.name.toUpperCase(),
+                    service.httpMethod.displayName(context),
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -224,19 +234,25 @@ class ServicesListSection extends ConsumerWidget {
             // Additional info
             Row(
               children: [
-                Icon(Icons.timer, size: 14, color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                Icon(Icons.timer,
+                    size: 14,
+                    color: theme.colorScheme.onSurface.withOpacity(0.6)),
                 const SizedBox(width: 4),
                 Text(
-                  'Check interval: ${service.checkIntervalSeconds}s',
+                  context.l10n
+                      .services_check_interval(service.checkIntervalSeconds),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurface.withOpacity(0.7),
                   ),
                 ),
                 const SizedBox(width: 16),
-                Icon(Icons.warning, size: 14, color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                Icon(Icons.warning,
+                    size: 14,
+                    color: theme.colorScheme.onSurface.withOpacity(0.6)),
                 const SizedBox(width: 4),
                 Text(
-                  'Failure threshold: ${service.failureThreshold}',
+                  context.l10n.services_failure_threshold_value(
+                      service.failureThreshold),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurface.withOpacity(0.7),
                   ),
@@ -246,7 +262,8 @@ class ServicesListSection extends ConsumerWidget {
             if (service.lastCheckedAt != null) ...[
               const SizedBox(height: 8),
               Text(
-                'Last checked: ${_formatDateTime(service.lastCheckedAt!)}',
+                context.l10n.services_last_checked(
+                    _formatDateTime(context, service.lastCheckedAt!)),
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurface.withOpacity(0.6),
                   fontStyle: FontStyle.italic,
@@ -294,7 +311,45 @@ class ServicesListSection extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatusBadge(bool isActive, ThemeData theme) {
+  Widget _buildHealthStatus(
+      ServiceState state, ThemeData theme, BuildContext context) {
+    final l10n = context.l10n;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: state == ServiceState.healthy
+            ? theme.colorScheme.primaryContainer
+            : theme.colorScheme.errorContainer,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            state == ServiceState.healthy ? Icons.check_circle : Icons.cancel,
+            size: 14,
+            color: state == ServiceState.healthy
+                ? theme.colorScheme.onPrimaryContainer
+                : theme.colorScheme.onErrorContainer,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            state.displayName(context),
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: state == ServiceState.healthy
+                  ? theme.colorScheme.onPrimaryContainer
+                  : theme.colorScheme.onErrorContainer,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge(
+      bool isActive, ThemeData theme, BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -315,7 +370,7 @@ class ServicesListSection extends ConsumerWidget {
           ),
           const SizedBox(width: 4),
           Text(
-            isActive ? 'Active' : 'Inactive',
+            isActive ? l10n.services_active : l10n.services_inactive,
             style: theme.textTheme.labelSmall?.copyWith(
               color: isActive
                   ? theme.colorScheme.onPrimaryContainer
@@ -345,18 +400,30 @@ class ServicesListSection extends ConsumerWidget {
     }
   }
 
-  String _formatDateTime(DateTime dateTime) {
+  Color _getServiceCardColor(ServiceState state, ThemeData theme) {
+    switch (state) {
+      case ServiceState.healthy:
+        return theme.colorScheme.surfaceVariant;
+      case ServiceState.error:
+        return theme.colorScheme.errorContainer;
+      case ServiceState.inactive:
+        return theme.colorScheme.surface;
+    }
+  }
+
+  String _formatDateTime(BuildContext context, DateTime dateTime) {
+    final l10n = context.l10n;
     final now = DateTime.now();
     final difference = now.difference(dateTime);
 
     if (difference.inMinutes < 1) {
-      return 'Just now';
+      return l10n.services_just_now;
     } else if (difference.inHours < 1) {
-      return '${difference.inMinutes}m ago';
+      return l10n.services_minutes_ago(difference.inMinutes);
     } else if (difference.inDays < 1) {
-      return '${difference.inHours}h ago';
+      return l10n.services_hours_ago(difference.inHours);
     } else {
-      return '${difference.inDays}d ago';
+      return l10n.services_days_ago(difference.inDays);
     }
   }
 

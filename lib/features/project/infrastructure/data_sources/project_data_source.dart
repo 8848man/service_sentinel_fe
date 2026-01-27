@@ -1,4 +1,5 @@
 import '../../domain/entities/project.dart';
+import '../../domain/entities/project_health.dart';
 
 /// Abstract interface for project data sources
 /// Implemented by both LocalProjectDataSource and RemoteProjectDataSource
@@ -37,4 +38,8 @@ abstract class LocalProjectDataSource extends ProjectDataSource {
 abstract class RemoteProjectDataSource extends ProjectDataSource {
   /// Get project statistics from server
   Future<ProjectStats> getStats(String id);
+
+  /// Get project health from server
+  /// Health is ALWAYS server-calculated, never local
+  Future<ProjectHealth> getHealth(String id);
 }

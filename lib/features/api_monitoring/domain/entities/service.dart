@@ -22,6 +22,7 @@ class Service with _$Service {
     required int checkIntervalSeconds,
     required int failureThreshold,
     required bool isActive,
+    ServiceState? serviceState,
     required DateTime createdAt,
     required DateTime updatedAt,
     DateTime? lastCheckedAt,

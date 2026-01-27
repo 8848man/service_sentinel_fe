@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/extensions/context_extensions.dart';
 import '../../application/providers/incident_provider.dart';
 import '../widgets/incident_detail_body.dart';
 
@@ -20,13 +21,15 @@ class IncidentDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Incident Details'),
+        title: Text(l10n.incidents_incident_details),
         actions: [
           IconButton(
             icon: const Icon(Icons.analytics),
-            tooltip: 'Request AI Analysis',
+            tooltip: l10n.incidents_request_ai_analysis,
             onPressed: () => _handleRequestAnalysis(context, ref),
           ),
           PopupMenuButton<String>(
@@ -38,23 +41,23 @@ class IncidentDetailScreen extends ConsumerWidget {
               }
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'acknowledge',
                 child: Row(
                   children: [
-                    Icon(Icons.check),
-                    SizedBox(width: 8),
-                    Text('Acknowledge'),
+                    const Icon(Icons.check),
+                    const SizedBox(width: 8),
+                    Text(l10n.incidents_acknowledge),
                   ],
                 ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'resolve',
                 child: Row(
                   children: [
-                    Icon(Icons.done_all, color: Colors.green),
-                    SizedBox(width: 8),
-                    Text('Resolve'),
+                    const Icon(Icons.done_all, color: Colors.green),
+                    const SizedBox(width: 8),
+                    Text(l10n.incidents_resolve),
                   ],
                 ),
               ),
@@ -89,14 +92,17 @@ class IncidentDetailScreen extends ConsumerWidget {
       ref.invalidate(incidentsProvider);
       ref.invalidate(incidentByIdProvider(incidentId));
 
+      final l10n = context.l10n;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Incident acknowledged successfully')),
+        SnackBar(content: Text(l10n.incidents_acknowledged_success)),
       );
     } else {
+      final l10n = context.l10n;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Failed to acknowledge: ${result.errorOrNull?.message}',
+            l10n.incidents_failed_to_acknowledge(
+                result.errorOrNull?.message ?? ''),
           ),
           backgroundColor: Colors.red,
         ),
@@ -106,26 +112,26 @@ class IncidentDetailScreen extends ConsumerWidget {
 
   /// Handle resolve incident action
   Future<void> _handleResolve(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
+
     // Show confirmation dialog
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Resolve Incident'),
-        content: const Text(
-          'Are you sure you want to mark this incident as resolved?',
-        ),
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.incidents_resolve_incident),
+        content: Text(l10n.incidents_resolve_confirmation),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.common_cancel),
           ),
           ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Resolve'),
+            child: Text(l10n.incidents_resolve),
           ),
         ],
       ),
@@ -154,16 +160,19 @@ class IncidentDetailScreen extends ConsumerWidget {
       ref.invalidate(incidentsProvider);
       ref.invalidate(incidentByIdProvider(incidentId));
 
+      final l10n = context.l10n;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Incident resolved successfully'),
+        SnackBar(
+          content: Text(l10n.incidents_resolved_success),
           backgroundColor: Colors.green,
         ),
       );
     } else {
+      final l10n = context.l10n;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to resolve: ${result.errorOrNull?.message}'),
+          content: Text(l10n
+              .incidents_failed_to_resolve(result.errorOrNull?.message ?? '')),
           backgroundColor: Colors.red,
         ),
       );
@@ -175,24 +184,22 @@ class IncidentDetailScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
   ) async {
+    final l10n = context.l10n;
+
     // Show confirmation dialog
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Request AI Analysis'),
-        content: const Text(
-          'Request AI to analyze this incident and provide root cause analysis, '
-          'debug steps, and suggested actions?\n\n'
-          'Analysis may take a few moments to complete.',
-        ),
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.incidents_request_analysis_dialog_title),
+        content: Text(l10n.incidents_request_analysis_dialog_message),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.common_cancel),
           ),
           ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Request Analysis'),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n.incidents_request_analysis),
           ),
         ],
       ),
@@ -221,19 +228,20 @@ class IncidentDetailScreen extends ConsumerWidget {
       ref.invalidate(incidentsProvider);
       ref.invalidate(incidentByIdProvider(incidentId));
 
+      final l10n = context.l10n;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'AI analysis requested. It will be available shortly.',
-          ),
-          duration: Duration(seconds: 3),
+        SnackBar(
+          content: Text(l10n.incidents_ai_analysis_requested),
+          duration: const Duration(seconds: 3),
         ),
       );
     } else {
+      final l10n = context.l10n;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Failed to request analysis: ${result.errorOrNull?.message}',
+            l10n.incidents_failed_to_request_analysis(
+                result.errorOrNull?.message ?? ''),
           ),
           backgroundColor: Colors.red,
         ),

@@ -32,8 +32,10 @@ class ServiceRepositoryImpl implements ServiceRepository {
         _getDataSourceMode = getDataSourceMode;
 
   ServiceDataSource get _currentDataSource {
-    final mode = _getDataSourceMode();
-    return mode.isLocal ? _localDataSource : _remoteDataSource;
+    return _remoteDataSource;
+    //
+    // final mode = _getDataSourceMode();
+    // return mode.isLocal ? _localDataSource : _remoteDataSource;
   }
 
   @override

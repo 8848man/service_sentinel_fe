@@ -37,10 +37,20 @@ class FirebaseAuthRepository implements AuthRepository {
     String password,
   ) async {
     try {
-      final credential = await _firebaseAuth.signInWithEmailAndPassword(
+      final credential = await _firebaseAuth
+          .signInWithEmailAndPassword(
         email: email,
         password: password,
+      )
+          .timeout(
+        const Duration(seconds: 3),
+        onTimeout: () {
+          throw AuthError(message: '로그인 요청이 시간 초과되었습니다');
+        },
       );
+
+      // 서버 토큰 갱신 딜레이
+      await Future.delayed(const Duration(seconds: 1));
 
       final user = credential.user;
       if (user == null) {
@@ -109,5 +119,19 @@ class FirebaseAuthRepository implements AuthRepository {
   Future<bool> isAuthenticated() async {
     final user = _firebaseAuth.currentUser;
     return user != null && !user.isAnonymous;
+  }
+
+  @override
+  Future<String?> getIdToken({bool forceRefresh = false}) async {
+    final user = _firebaseAuth.currentUser;
+    if (user == null || user.isAnonymous) {
+      return null;
+    }
+
+    try {
+      return await user.getIdToken(forceRefresh);
+    } catch (e) {
+      return null;
+    }
   }
 }

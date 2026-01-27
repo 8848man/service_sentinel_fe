@@ -1,7 +1,6 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../../domain/entities/project.dart';
-import '../models/project_dto.dart';
 import 'project_data_source.dart';
 
 /// Local project data source implementation using Hive

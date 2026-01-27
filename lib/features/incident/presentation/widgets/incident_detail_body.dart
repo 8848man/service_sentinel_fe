@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../application/providers/incident_provider.dart';
 import '../../../../core/constants/enums.dart';
+import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
 
 /// Incident Detail Body Widget
@@ -20,6 +21,8 @@ class IncidentDetailBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+
     // Watch incident data
     final incidentAsync = ref.watch(incidentByIdProvider(incidentId));
 
@@ -34,7 +37,7 @@ class IncidentDetailBody extends ConsumerWidget {
             const Icon(Icons.error_outline, size: 48, color: Colors.red),
             const SizedBox(height: 16),
             Text(
-              'Error loading incident',
+              l10n.incidents_error_loading,
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 8),
@@ -55,7 +58,7 @@ class IncidentDetailBody extends ConsumerWidget {
                 const Icon(Icons.search_off, size: 48, color: Colors.grey),
                 const SizedBox(height: 16),
                 Text(
-                  'Incident not found',
+                  l10n.incidents_incident_not_found,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ],
@@ -114,13 +117,13 @@ class IncidentDetailBody extends ConsumerWidget {
                         children: [
                           _buildBadge(
                             context,
-                            _getStatusLabel(incident.status),
+                            incident.status.displayName(context),
                             _getStatusColor(incident.status),
                           ),
                           const SizedBox(width: 8),
                           _buildBadge(
                             context,
-                            incident.severity.displayName,
+                            incident.severity.displayName(context),
                             _getSeverityColor(incident.severity),
                           ),
                         ],
@@ -131,39 +134,39 @@ class IncidentDetailBody extends ConsumerWidget {
                       // Incident Details
                       _buildDetailRow(
                         context,
-                        'Service ID',
+                        l10n.incidents_service_id,
                         incident.serviceId.toString(),
                         Icons.cloud,
                       ),
                       _buildDetailRow(
                         context,
-                        'Detected At',
+                        l10n.incidents_detected_at,
                         _formatDateTime(incident.detectedAt),
                         Icons.access_time,
                       ),
                       if (incident.acknowledgedAt != null)
                         _buildDetailRow(
                           context,
-                          'Acknowledged At',
+                          l10n.incidents_acknowledged_at,
                           _formatDateTime(incident.acknowledgedAt!),
                           Icons.check,
                         ),
                       if (incident.resolvedAt != null)
                         _buildDetailRow(
                           context,
-                          'Resolved At',
+                          l10n.incidents_resolved_at,
                           _formatDateTime(incident.resolvedAt!),
                           Icons.done_all,
                         ),
                       _buildDetailRow(
                         context,
-                        'Consecutive Failures',
+                        l10n.incidents_consecutive_failures,
                         '${incident.consecutiveFailures}',
                         Icons.warning,
                       ),
                       _buildDetailRow(
                         context,
-                        'Total Affected Checks',
+                        l10n.incidents_total_affected_checks,
                         '${incident.totalAffectedChecks}',
                         Icons.analytics,
                       ),
@@ -183,8 +186,8 @@ class IncidentDetailBody extends ConsumerWidget {
                             const SizedBox(width: 8),
                             Text(
                               incident.aiAnalysisCompleted
-                                  ? 'AI Analysis Complete'
-                                  : 'AI Analysis Pending',
+                                  ? l10n.incidents_ai_analysis_complete
+                                  : l10n.incidents_ai_analysis_pending,
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyMedium
@@ -206,7 +209,7 @@ class IncidentDetailBody extends ConsumerWidget {
               // AI Analysis Section
               if (incident.aiAnalysisCompleted) ...[
                 Text(
-                  'AI Analysis',
+                  l10n.incidents_ai_root_cause,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 12),
@@ -241,7 +244,7 @@ class IncidentDetailBody extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'AI Root Cause Analysis Available',
+                                  l10n.incidents_ai_root_cause_available,
                                   style: Theme.of(context)
                                       .textTheme
                                       .titleMedium
@@ -251,7 +254,7 @@ class IncidentDetailBody extends ConsumerWidget {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  'View AI-generated insights, root cause hypothesis, and suggested actions',
+                                  l10n.incidents_view_ai_insights,
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodyMedium
@@ -284,7 +287,7 @@ class IncidentDetailBody extends ConsumerWidget {
 
               // Related Health Checks
               Text(
-                'Related Health Checks',
+                l10n.incidents_related_health_checks,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 12),
@@ -293,7 +296,7 @@ class IncidentDetailBody extends ConsumerWidget {
                   padding: const EdgeInsets.all(16.0),
                   child: Center(
                     child: Text(
-                      'Related health checks will be displayed here',
+                      l10n.incidents_related_health_checks_placeholder,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontStyle: FontStyle.italic,
                             color: Colors.grey,
@@ -379,21 +382,6 @@ class IncidentDetailBody extends ConsumerWidget {
         return Colors.yellow.shade700;
       case IncidentSeverity.low:
         return Colors.blue.shade700;
-    }
-  }
-
-  String _getStatusLabel(IncidentStatus status) {
-    switch (status) {
-      case IncidentStatus.open:
-        return 'Open';
-      case IncidentStatus.acknowledged:
-        return 'Acknowledged';
-      case IncidentStatus.resolved:
-        return 'Resolved';
-
-      case IncidentStatus.investigating:
-        // TODO: Handle this case.
-        throw UnimplementedError();
     }
   }
 

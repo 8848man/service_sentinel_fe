@@ -1,7 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'app_localizations.dart';
+
+/// Supported locales
+enum AppLocale {
+  en,
+  ko;
+
+  Locale get locale {
+    switch (this) {
+      case AppLocale.en:
+        return const Locale('en');
+      case AppLocale.ko:
+        return const Locale('ko');
+    }
+  }
+
+  String get displayName {
+    switch (this) {
+      case AppLocale.en:
+        return 'English';
+      case AppLocale.ko:
+        return '한국어';
+    }
+  }
+
+  static AppLocale fromLocale(Locale locale) {
+    switch (locale.languageCode) {
+      case 'ko':
+        return AppLocale.ko;
+      case 'en':
+      default:
+        return AppLocale.en;
+    }
+  }
+}
 
 /// Storage key for locale preference
 const String _localePreferenceKey = 'app_locale';

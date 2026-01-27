@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/enums.dart';
+import '../../../../core/extensions/context_extensions.dart';
 import '../../application/providers/incident_provider.dart';
 import '../../domain/entities/incident.dart';
 import 'incident_detail_dialog.dart';
@@ -20,6 +21,7 @@ class IncidentsListSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     // Observe incidents from incidentsProvider (calls LoadIncidents use case)
     final incidentsAsync = ref.watch(incidentsProvider);
@@ -34,12 +36,12 @@ class IncidentsListSection extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Incidents',
+                  l10n.incidents_title,
                   style: theme.textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Service failure events and alerts',
+                  l10n.incidents_desc,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurface.withOpacity(0.7),
                   ),
@@ -53,8 +55,6 @@ class IncidentsListSection extends ConsumerWidget {
         // Loading/Error/Success states within section
         incidentsAsync.when(
           data: (incidents) {
-            print(
-                'test001, incidents count: ${incidents.length}'); // --- IGNORE ---
             if (incidents.isEmpty) {
               return _buildEmptyState(context, theme);
             }
@@ -67,14 +67,15 @@ class IncidentsListSection extends ConsumerWidget {
             return Column(
               children: [
                 // Summary cards
-                _buildSummaryCards(theme, openIncidents, resolvedIncidents),
+                _buildSummaryCards(
+                    context, theme, openIncidents, resolvedIncidents),
 
                 const SizedBox(height: 24),
 
                 // Open incidents
                 if (openIncidents.isNotEmpty) ...[
-                  _buildSectionHeader(
-                      theme, 'Open Incidents', openIncidents.length),
+                  _buildSectionHeader(context, l10n.incidents_open_incidents,
+                      openIncidents.length),
                   const SizedBox(height: 12),
                   ...openIncidents.map((incident) =>
                       _buildIncidentCard(context, ref, incident, theme)),
@@ -84,7 +85,9 @@ class IncidentsListSection extends ConsumerWidget {
                 // Resolved incidents
                 if (resolvedIncidents.isNotEmpty) ...[
                   _buildSectionHeader(
-                      theme, 'Resolved Incidents', resolvedIncidents.length),
+                      context,
+                      l10n.incidents_resolved_incidents,
+                      resolvedIncidents.length),
                   const SizedBox(height: 12),
                   ...resolvedIncidents.map((incident) =>
                       _buildIncidentCard(context, ref, incident, theme)),
@@ -111,7 +114,7 @@ class IncidentsListSection extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Failed to load incidents',
+                    l10n.incidents_failed_to_load,
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: theme.colorScheme.error,
                     ),
@@ -128,7 +131,7 @@ class IncidentsListSection extends ConsumerWidget {
                   ElevatedButton.icon(
                     onPressed: () => ref.refresh(incidentsProvider),
                     icon: const Icon(Icons.refresh),
-                    label: const Text('Retry'),
+                    label: Text(l10n.common_retry),
                   ),
                 ],
               ),
@@ -140,6 +143,7 @@ class IncidentsListSection extends ConsumerWidget {
   }
 
   Widget _buildEmptyState(BuildContext context, ThemeData theme) {
+    final l10n = context.l10n;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(48.0),
@@ -152,12 +156,12 @@ class IncidentsListSection extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'No Incidents',
+              l10n.incidents_no_incidents,
               style: theme.textTheme.titleLarge,
             ),
             const SizedBox(height: 8),
             Text(
-              'All services are running smoothly',
+              l10n.incidents_all_services_running,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurface.withOpacity(0.7),
               ),
@@ -170,10 +174,12 @@ class IncidentsListSection extends ConsumerWidget {
   }
 
   Widget _buildSummaryCards(
+    BuildContext context,
     ThemeData theme,
     List<Incident> open,
     List<Incident> resolved,
   ) {
+    final l10n = context.l10n;
     return Row(
       children: [
         Expanded(
@@ -188,15 +194,13 @@ class IncidentsListSection extends ConsumerWidget {
                   Text(
                     '${open.length}',
                     style: theme.textTheme.displaySmall?.copyWith(
-                      color: open.isEmpty
-                          ? theme.colorScheme.onPrimaryContainer
-                          : theme.colorScheme.error,
+                      color: theme.colorScheme.onPrimaryContainer,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Open',
+                    l10n.incidents_open_incidents,
                     style: theme.textTheme.titleSmall?.copyWith(
                       color: open.isEmpty
                           ? theme.colorScheme.onPrimaryContainer
@@ -225,7 +229,7 @@ class IncidentsListSection extends ConsumerWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Resolved',
+                    l10n.incidents_resolved_incidents,
                     style: theme.textTheme.titleSmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -239,7 +243,8 @@ class IncidentsListSection extends ConsumerWidget {
     );
   }
 
-  Widget _buildSectionHeader(ThemeData theme, String title, int count) {
+  Widget _buildSectionHeader(BuildContext context, String title, int count) {
+    final theme = Theme.of(context);
     return Row(
       children: [
         Text(
@@ -286,7 +291,7 @@ class IncidentsListSection extends ConsumerWidget {
               Row(
                 children: [
                   // Severity badge
-                  _buildSeverityBadge(incident.severity, theme),
+                  _buildSeverityBadge(context, incident.severity, theme),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
@@ -295,7 +300,7 @@ class IncidentsListSection extends ConsumerWidget {
                     ),
                   ),
                   // Status badge
-                  _buildStatusBadge(incident.status, theme),
+                  _buildStatusBadge(context, incident.status, theme),
                 ],
               ),
               if (incident.description != null) ...[
@@ -319,7 +324,8 @@ class IncidentsListSection extends ConsumerWidget {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    'Detected: ${_formatDateTime(incident.detectedAt)}',
+                    context.l10n.incidents_detected(
+                        _formatDateTime(context, incident.detectedAt)),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurface.withOpacity(0.7),
                     ),
@@ -332,7 +338,8 @@ class IncidentsListSection extends ConsumerWidget {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    '${incident.consecutiveFailures} failures',
+                    context.l10n
+                        .incidents_failures_count(incident.consecutiveFailures),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurface.withOpacity(0.7),
                     ),
@@ -350,7 +357,7 @@ class IncidentsListSection extends ConsumerWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'AI Analysis Available',
+                      context.l10n.incidents_ai_analysis_available,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.primary,
                         fontWeight: FontWeight.bold,
@@ -366,7 +373,8 @@ class IncidentsListSection extends ConsumerWidget {
     );
   }
 
-  Widget _buildSeverityBadge(IncidentSeverity severity, ThemeData theme) {
+  Widget _buildSeverityBadge(
+      BuildContext context, IncidentSeverity severity, ThemeData theme) {
     Color color;
     IconData icon;
 
@@ -402,7 +410,7 @@ class IncidentsListSection extends ConsumerWidget {
           Icon(icon, size: 14, color: color),
           const SizedBox(width: 4),
           Text(
-            severity.name.toUpperCase(),
+            severity.displayName(context),
             style: theme.textTheme.labelSmall?.copyWith(
               color: color,
               fontWeight: FontWeight.bold,
@@ -413,7 +421,8 @@ class IncidentsListSection extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatusBadge(IncidentStatus status, ThemeData theme) {
+  Widget _buildStatusBadge(
+      BuildContext context, IncidentStatus status, ThemeData theme) {
     Color color;
     IconData icon;
 
@@ -448,7 +457,7 @@ class IncidentsListSection extends ConsumerWidget {
           Icon(icon, size: 12, color: color),
           const SizedBox(width: 4),
           Text(
-            status.name.toUpperCase(),
+            status.displayName(context),
             style: theme.textTheme.labelSmall?.copyWith(
               color: color,
               fontWeight: FontWeight.bold,
@@ -459,18 +468,19 @@ class IncidentsListSection extends ConsumerWidget {
     );
   }
 
-  String _formatDateTime(DateTime dateTime) {
+  String _formatDateTime(BuildContext context, DateTime dateTime) {
+    final l10n = context.l10n;
     final now = DateTime.now();
     final difference = now.difference(dateTime);
 
     if (difference.inMinutes < 1) {
-      return 'Just now';
+      return l10n.services_just_now;
     } else if (difference.inHours < 1) {
-      return '${difference.inMinutes}m ago';
+      return l10n.services_minutes_ago(difference.inMinutes);
     } else if (difference.inDays < 1) {
-      return '${difference.inHours}h ago';
+      return l10n.services_hours_ago(difference.inHours);
     } else {
-      return '${difference.inDays}d ago';
+      return l10n.services_days_ago(difference.inDays);
     }
   }
 

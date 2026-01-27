@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/l10n/app_localizations.dart';
+import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
 import '../../application/providers/auth_provider.dart';
 import '../widgets/guest_entry_section.dart';
@@ -18,7 +18,7 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
+    final l10n = context.l10n;
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -38,13 +38,13 @@ class LoginScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  l10n.translate('app.title'),
+                  l10n.app_title,
                   style: theme.textTheme.headlineMedium,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  l10n.translate('app.subtitle'),
+                  l10n.app_subtitle,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurface.withOpacity(0.7),
                   ),
@@ -52,19 +52,17 @@ class LoginScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 48),
 
-                // Guest entry section (ConsumerWidget)
-                const GuestEntrySection(),
+                // Login form section (ConsumerWidget)
+                const LoginFormSection(),
 
-                const SizedBox(height: 32),
-
-                // Divider with "OR"
+                const SizedBox(height: 32), // Divider with "OR"
                 Row(
                   children: [
                     const Expanded(child: Divider()),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
-                        'OR',
+                        l10n.common_or,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurface.withOpacity(0.5),
                         ),
@@ -75,9 +73,8 @@ class LoginScreen extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 32),
-
-                // Login form section (ConsumerWidget)
-                const LoginFormSection(),
+                // Guest entry section (ConsumerWidget)
+                const GuestEntrySection(),
               ],
             ),
           ),

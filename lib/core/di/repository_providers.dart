@@ -1,10 +1,14 @@
-import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:service_sentinel_fe_v2/core/state/project_session_notifier.dart';
 import 'package:service_sentinel_fe_v2/features/auth/infrastructure/repositories/firebase_auth_repository.dart';
 
-import '../../features/api_monitoring/domain/repositories/dashboard_repository.dart';
 import '../../features/api_monitoring/domain/repositories/service_repository.dart';
+import '../../features/dashboard/domain/repositories/dashboard_repository.dart'
+    as global;
+import '../../features/dashboard/infrastructure/data_sources/global_dashboard_data_source.dart';
+import '../../features/dashboard/infrastructure/data_sources/remote_global_dashboard_data_source_impl.dart';
+import '../../features/dashboard/infrastructure/repositories/dashboard_repository_impl.dart'
+    as global;
 import '../../features/api_monitoring/infrastructure/data_sources/local_service_data_source_impl.dart';
 import '../../features/api_monitoring/infrastructure/data_sources/remote_service_data_source_impl.dart';
 import '../../features/api_monitoring/infrastructure/repositories/service_repository_impl.dart';
@@ -14,11 +18,14 @@ import '../../features/incident/infrastructure/data_sources/local_incident_data_
 import '../../features/incident/infrastructure/data_sources/remote_incident_data_source_impl.dart';
 import '../../features/incident/infrastructure/repositories/incident_repository_impl.dart';
 import '../../features/project/domain/repositories/api_key_repository.dart';
+import '../../features/project/domain/repositories/bootstrap_repository.dart';
 import '../../features/project/domain/repositories/project_repository.dart';
 import '../../features/project/infrastructure/data_sources/local_project_data_source_impl.dart';
 import '../../features/project/infrastructure/data_sources/remote_api_key_data_source.dart';
+import '../../features/project/infrastructure/data_sources/remote_bootstrap_data_source_impl.dart';
 import '../../features/project/infrastructure/data_sources/remote_project_data_source_impl.dart';
 import '../../features/project/infrastructure/repositories/api_key_repository_impl.dart';
+import '../../features/project/infrastructure/repositories/bootstrap_repository_impl.dart';
 import '../../features/project/infrastructure/repositories/project_repository_impl.dart';
 import '../data/data_source_mode_provider.dart';
 import 'providers.dart';
@@ -40,9 +47,28 @@ import 'providers.dart';
 /// Auth repository provider
 /// Always uses Firebase Auth (remote only)
 /// TODO: Implement FirebaseAuthRepositoryImpl
+// final authRepositoryProvider = Provider<AuthRepository>((ref) {
+//   final fb.FirebaseAuth firebasAuth = fb.FirebaseAuth.instance;
+//   return FirebaseAuthRepository(firebasAuth);
+// });
+
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
-  final fb.FirebaseAuth firebasAuth = fb.FirebaseAuth.instance;
-  return FirebaseAuthRepository(firebasAuth);
+  final firebaseAuth = ref.watch(firebaseAuthProvider);
+  return FirebaseAuthRepository(firebaseAuth);
+});
+// ============================================================================
+// BOOTSTRAP REPOSITORY
+// ============================================================================
+
+/// Bootstrap repository provider
+/// Uses unauthenticated Dio client (no Firebase token, no X-API-KEY)
+/// This is the ONLY v3 endpoint accessible without authentication
+final bootstrapRepositoryProvider = Provider<BootstrapRepository>((ref) {
+  final unauthenticatedDio = ref.watch(unauthenticatedDioClientProvider);
+
+  return BootstrapRepositoryImpl(
+    dataSource: RemoteBootstrapDataSourceImpl(unauthenticatedDio),
+  );
 });
 
 // ============================================================================
@@ -115,13 +141,32 @@ final incidentRepositoryProvider = Provider<IncidentRepository>((ref) {
 });
 
 // ============================================================================
-// DASHBOARD REPOSITORY
+// DASHBOARD REPOSITORY (Project-specific)
 // ============================================================================
 
 /// Dashboard repository provider
 /// TODO: Implement auth-aware dashboard repository
-final dashboardRepositoryProvider = Provider<DashboardRepository>((ref) {
-  throw UnimplementedError('DashboardRepository not implemented yet');
+// final dashboardRepositoryProvider = Provider<DashboardRepository>((ref) {
+//   throw UnimplementedError('DashboardRepository not implemented yet');
+// });
+
+// ============================================================================
+// GLOBAL DASHBOARD REPOSITORY
+// ============================================================================
+
+/// Global dashboard data source provider
+/// Provides system-wide metrics via REST API
+final remoteDashboardDataSourceProvider = Provider<DashboardDataSource>((ref) {
+  final dio = ref.watch(dioClientProvider).dio;
+  return RemoteGlobalDashboardDataSourceImpl(dio);
+});
+
+/// Global dashboard repository provider
+/// Provides system-wide dashboard metrics across all projects
+/// Note: This endpoint does not require authentication per README_v1.1.md
+final dashboardRepositoryProvider = Provider<global.DashboardRepository>((ref) {
+  final dataSource = ref.watch(remoteDashboardDataSourceProvider);
+  return global.DashboardRepositoryImpl(dataSource);
 });
 
 /// NOTE: All repositories except Auth and Dashboard are now fully wired
@@ -138,3 +183,16 @@ final dashboardRepositoryProvider = Provider<DashboardRepository>((ref) {
 /// 2. Data source switching is handled at the repository level
 /// 3. All business logic remains in the Application layer
 /// 4. Infrastructure layer is fully decoupled from presentation
+// final remoteDashboardDataSourceProvider = Provider<DashboardDataSource>((ref) {
+//   final dio = ref.watch(dioClientProvider).dio;
+//   return RemoteGlobalDashboardDataSourceImpl(dio);
+// });
+
+// /// Global dashboard repository provider
+// /// Provides system-wide dashboard metrics across all projects
+// /// Note: This endpoint does not require authentication per README_v1.1.md
+// final globalDashboardRepositoryProvider =
+//     Provider<global.DashboardRepository>((ref) {
+//   final dataSource = ref.watch(remoteGlobalDashboardDataSourceProvider);
+//   return global.DashboardRepositoryImpl(dataSource);
+// });
