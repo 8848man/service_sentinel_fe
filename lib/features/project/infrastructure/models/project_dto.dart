@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:service_sentinel_fe_v2/features/project/infrastructure/models/project_health_dto.dart';
 import '../../domain/entities/project.dart';
 
 part 'project_dto.freezed.dart';
@@ -15,6 +16,7 @@ class ProjectDto with _$ProjectDto {
     @JsonKey(name: 'is_active') required bool isActive,
     @JsonKey(name: 'created_at') required String createdAt,
     @JsonKey(name: 'updated_at') required String updatedAt,
+    @JsonKey(name: 'health') ProjectHealthDto? health,
   }) = _ProjectDto;
 
   const ProjectDto._();
@@ -32,6 +34,7 @@ class ProjectDto with _$ProjectDto {
       createdAt: DateTime.parse(createdAt),
       updatedAt: DateTime.parse(updatedAt),
       isLocalOnly: false, // Server projects are never local-only
+      health: health?.toDomain(),
     );
   }
 
