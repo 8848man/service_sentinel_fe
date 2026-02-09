@@ -46,22 +46,18 @@ DeleteProject deleteProject(DeleteProjectRef ref) {
 /// This provider auto-refreshes when dependencies change
 @riverpod
 Future<List<Project>> projects(ProjectsRef ref) async {
-  try {
-    final useCase = ref.watch(loadProjectsProvider);
-    final result = await useCase.execute();
+  final guestApiKeyService = ref.watch(guestApiKeyServiceProvider);
+  final guestKey = guestApiKeyService.getGuestKey();
+  if (guestKey == null) {
+    return List<Project>.empty();
+  }
+  final useCase = ref.watch(loadProjectsProvider);
+  final result = await useCase.execute();
 
-    if (result.isSuccess) {
-      return result.dataOrNull!;
-    } else {
-      throw result.errorOrNull!;
-    }
-  } catch (e) {
-    final guestApiKeyService = ref.watch(guestApiKeyServiceProvider);
-    final guestKey = guestApiKeyService.getGuestKey();
-    if (guestKey == null) {
-      return List<Project>.empty();
-    }
-    rethrow;
+  if (result.isSuccess) {
+    return result.dataOrNull!;
+  } else {
+    throw result.errorOrNull!;
   }
 }
 

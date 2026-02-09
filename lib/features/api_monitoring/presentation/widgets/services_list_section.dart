@@ -51,11 +51,6 @@ class ServicesListSection extends ConsumerWidget {
               onPressed: () => _showCreateServiceDialog(context, ref),
               icon: const Icon(Icons.add),
               label: Text(l10n.services_add_service),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                minimumSize: const Size(0, 36), // width만 0, height는 원하는 값 설정
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
             ),
           ],
         ),

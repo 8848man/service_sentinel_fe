@@ -218,7 +218,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'APIs and endpoints being monitored';
 
   @override
-  String get services_add_service => 'Add\nService';
+  String get services_add_service => 'Add Service';
 
   @override
   String get services_failed_to_load => 'Failed to load services';
@@ -1052,7 +1052,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get error_analysis => 'AI analysis error. Please try again.';
 
   @override
-  String get error_guest_limit => 'guest only can create 1 project';
+  String get error_guest_limit =>
+      'Guest project limit reached. Please sign in.';
 
   @override
   String get error_service_name_required => 'Service name is required';

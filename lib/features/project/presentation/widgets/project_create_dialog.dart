@@ -20,8 +20,7 @@ class ProjectCreateDialog extends ConsumerStatefulWidget {
   const ProjectCreateDialog({super.key});
 
   @override
-  ConsumerState<ProjectCreateDialog> createState() =>
-      _ProjectCreateDialogState();
+  ConsumerState<ProjectCreateDialog> createState() => _ProjectCreateDialogState();
 }
 
 class _ProjectCreateDialogState extends ConsumerState<ProjectCreateDialog> {
@@ -39,7 +38,6 @@ class _ProjectCreateDialogState extends ConsumerState<ProjectCreateDialog> {
   }
 
   Future<void> _handleCreate() async {
-    final l10n = context.l10n;
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -53,6 +51,7 @@ class _ProjectCreateDialogState extends ConsumerState<ProjectCreateDialog> {
     final authState = ref.read(authStateNotifierProvider).value;
 
     if (authState == null) {
+      final l10n = context.l10n;
       setState(() {
         _isLoading = false;
         _errorMessage = l10n.error_auth_unavailable;
@@ -79,13 +78,8 @@ class _ProjectCreateDialogState extends ConsumerState<ProjectCreateDialog> {
         // First time creating project: Bootstrap
         createdProject = await _bootstrapGuestUser(name, description);
       } else {
-        // // Subsequent project creation: Use standard flow
-        // createdProject = await _createProjectAuthenticated(name, description);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.error_guest_limit),
-          ),
-        );
+        // Subsequent project creation: Use standard flow
+        createdProject = await _createProjectAuthenticated(name, description);
       }
     }
 
@@ -106,8 +100,7 @@ class _ProjectCreateDialogState extends ConsumerState<ProjectCreateDialog> {
   }
 
   /// Create project for authenticated users
-  Future<Project?> _createProjectAuthenticated(
-      String name, String? description) async {
+  Future<Project?> _createProjectAuthenticated(String name, String? description) async {
     final createData = ProjectCreate(
       name: name,
       description: description,
@@ -153,8 +146,7 @@ class _ProjectCreateDialogState extends ConsumerState<ProjectCreateDialog> {
     } else {
       final l10n = context.l10n;
       setState(() {
-        _errorMessage =
-            result.errorOrNull?.message ?? l10n.error_failed_to_bootstrap_guest;
+        _errorMessage = result.errorOrNull?.message ?? l10n.error_failed_to_bootstrap_guest;
       });
       return null;
     }
