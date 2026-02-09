@@ -503,7 +503,7 @@ abstract class AppLocalizations {
   /// No description provided for @services_add_service.
   ///
   /// In en, this message translates to:
-  /// **'Add\nService'**
+  /// **'Add Service'**
   String get services_add_service;
 
   /// No description provided for @services_failed_to_load.
@@ -2022,7 +2022,7 @@ abstract class AppLocalizations {
   /// No description provided for @error_guest_limit.
   ///
   /// In en, this message translates to:
-  /// **'guest only can create 1 project'**
+  /// **'Guest project limit reached. Please sign in.'**
   String get error_guest_limit;
 
   /// No description provided for @error_service_name_required.
