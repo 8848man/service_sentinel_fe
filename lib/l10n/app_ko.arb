@@ -341,6 +341,7 @@
   "error_service_name_required": "서비스 이름이 필요합니다",
   "error_failed_to_create_service": "서비스 생성에 실패했습니다",
   "error_auth_unavailable": "인증 상태를 사용할 수 없습니다",
+  "error_guest_limit": "게스트는 하나의 프로젝트만 만들 수 있습니다.",
   "error_failed_to_create_project": "프로젝트 생성에 실패했습니다",
   "error_failed_to_bootstrap_guest": "게스트 사용자 부트스트랩에 실패했습니다",
   "error_timeout": "요청 시간이 초과되었습니다. 다시 시도해 주세요.",
