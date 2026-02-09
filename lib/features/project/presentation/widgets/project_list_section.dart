@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:service_sentinel_fe_v2/core/constants/enums.dart';
 import '../../../../core/di/repository_providers.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/router/app_router.dart';
@@ -154,6 +155,7 @@ class ProjectListSection extends ConsumerWidget {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
+      color: _getCardColor(theme, project),
       child: ListTile(
         leading: Icon(
           project.isLocalOnly ? Icons.phonelink : Icons.cloud_done,
@@ -369,6 +371,20 @@ class ProjectListSection extends ConsumerWidget {
     // Refresh projects list if project was created
     if (result != null) {
       ref.refresh(projectsProvider);
+    }
+  }
+
+  Color? _getCardColor(ThemeData theme, Project project) {
+    switch (project.health?.status) {
+      case ProjectHealthStatus.healthy:
+        // return Colors.green.withOpacity(0.1);
+        return null;
+      case ProjectHealthStatus.degraded:
+        return Colors.red.withOpacity(0.2);
+      case ProjectHealthStatus.unknown:
+        return null;
+      default:
+        return null;
     }
   }
 }

@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:service_sentinel_fe_v2/features/project/domain/entities/project_health.dart';
 import 'api_key.dart';
 
 part 'project.freezed.dart';
@@ -19,6 +20,7 @@ class Project with _$Project {
     @Default(false) bool isLocalOnly,
     // API keys for this project (one-to-many relationship)
     @Default([]) List<ApiKey> apiKeys,
+    ProjectHealth? health,
   }) = _Project;
 
   const Project._();

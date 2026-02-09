@@ -1023,7 +1023,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get error_analysis => 'AI 분석 오류. 다시 시도해 주세요.';
 
   @override
-  String get error_guest_limit => '게스트 프로젝트 제한에 도달했습니다. 로그인해 주세요.';
+  String get error_guest_limit => '게스트는 하나의 프로젝트만 만들 수 있습니다.';
 
   @override
   String get error_service_name_required => '서비스 이름이 필요합니다';

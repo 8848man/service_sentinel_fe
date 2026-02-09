@@ -30,8 +30,10 @@ class ProjectRepositoryImpl implements ProjectRepository {
         _getDataSourceMode = getDataSourceMode;
 
   ProjectDataSource get _currentDataSource {
-    final mode = _getDataSourceMode();
-    return mode.isLocal ? _localDataSource : _remoteDataSource;
+    // final mode = _getDataSourceMode();
+    // return mode.isLocal ? _localDataSource : _remoteDataSource;
+
+    return _remoteDataSource;
   }
 
   @override
@@ -93,11 +95,11 @@ class ProjectRepositoryImpl implements ProjectRepository {
   Future<Result<Project>> create(ProjectCreate data) async {
     try {
       // Stats are only available for remote data source
-      final mode = _getDataSourceMode();
+      // final mode = _getDataSourceMode();
       final project = await _remoteDataSource.create(data);
-      if (mode.isLocal) {
-        await LocalProjectDataSourceImpl().createByProject(project);
-      }
+      // if (mode.isLocal) {
+      //   await LocalProjectDataSourceImpl().createByProject(project);
+      // }
       return Result.success(project);
     } catch (e) {
       return Result.failure(_handleError(e));
