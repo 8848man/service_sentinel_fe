@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:logger/logger.dart';
@@ -7,9 +8,20 @@ import '../config/app_config.dart';
 import '../network/dio_client.dart';
 import '../infrastructure/guest_api_key_service.dart';
 
-/// Firebase Auth instance provider
+// /// Firebase Auth instance provider
+// final firebaseAuthProvider = Provider<fb.FirebaseAuth>((ref) {
+//   return fb.FirebaseAuth.instance;
+// });
+
+// Auth 전용 FirebaseApp
+final authFirebaseAppProvider = Provider<FirebaseApp>((ref) {
+  return Firebase.app('lattui-auth');
+});
+
+// Firebase Auth (lattui-auth 프로젝트 사용)
 final firebaseAuthProvider = Provider<fb.FirebaseAuth>((ref) {
-  return fb.FirebaseAuth.instance;
+  final authApp = ref.watch(authFirebaseAppProvider);
+  return fb.FirebaseAuth.instanceFor(app: authApp);
 });
 
 /// SharedPreferences provider
