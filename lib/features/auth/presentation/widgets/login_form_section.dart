@@ -270,41 +270,41 @@ class _LoginFormSectionState extends ConsumerState<LoginFormSection> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<AsyncValue<AuthState>>(
-      authStateNotifierProvider,
-      (previous, next) async {
-        // 성공적으로 인증된 경우만 반응
-        if (next.hasValue && next.value!.isAuthenticated == true) {
-          // 1. 마이그레이션 체크
-          await ref
-              .read(migrationStateNotifierProvider.notifier)
-              .checkMigrationNeeded();
+    // ref.listen<AsyncValue<AuthState>>(
+    //   authStateNotifierProvider,
+    //   (previous, next) async {
+    //     // 성공적으로 인증된 경우만 반응
+    //     if (next.hasValue && next.value!.isAuthenticated == true) {
+    //       // 1. 마이그레이션 체크
+    //       await ref
+    //           .read(migrationStateNotifierProvider.notifier)
+    //           .checkMigrationNeeded();
 
-          final migrationState = ref.read(migrationStateNotifierProvider);
+    //       final migrationState = ref.read(migrationStateNotifierProvider);
 
-          if (migrationState.isRequired) {
-            final shouldMigrate = await showDialog<bool>(
-              context: context,
-              barrierDismissible: false,
-              builder: (context) => const MigrationDialog(),
-            );
+    //       if (migrationState.isRequired) {
+    //         final shouldMigrate = await showDialog<bool>(
+    //           context: context,
+    //           barrierDismissible: false,
+    //           builder: (context) => const MigrationDialog(),
+    //         );
 
-            if (shouldMigrate == true) {
-              await ref
-                  .read(migrationStateNotifierProvider.notifier)
-                  .executeMigration();
-            } else {
-              ref.read(migrationStateNotifierProvider.notifier).skipMigration();
-            }
-          }
+    //         if (shouldMigrate == true) {
+    //           await ref
+    //               .read(migrationStateNotifierProvider.notifier)
+    //               .executeMigration();
+    //         } else {
+    //           ref.read(migrationStateNotifierProvider.notifier).skipMigration();
+    //         }
+    //       }
 
-          // // 2. 최종 라우팅
-          // if (context.mounted) {
-          //   context.go(AppRoutes.projectSelection);
-          // }
-        }
-      },
-    );
+    //       // // 2. 최종 라우팅
+    //       // if (context.mounted) {
+    //       //   context.go(AppRoutes.projectSelection);
+    //       // }
+    //     }
+    //   },
+    // );
     final theme = Theme.of(context);
     final l10n = context.l10n;
     final authState = ref.watch(authStateNotifierProvider);

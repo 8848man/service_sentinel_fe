@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:service_sentinel_fe_v2/core/l10n/locale_provider.dart';
+import 'package:service_sentinel_fe_v2/core/migration/migration_provider.dart';
 import 'package:service_sentinel_fe_v2/core/theme/app_theme_mode.dart';
 import 'package:service_sentinel_fe_v2/core/theme/theme_provider.dart';
+import 'package:service_sentinel_fe_v2/features/auth/application/providers/auth_provider.dart';
+import 'package:service_sentinel_fe_v2/features/auth/domain/entities/auth_state.dart';
+import 'package:service_sentinel_fe_v2/features/auth/presentation/widgets/migration_dialog.dart';
 import '../../../../core/extensions/context_extensions.dart';
 import '../widgets/guest_entry_section.dart';
 import '../widgets/login_form_section.dart';
@@ -13,13 +17,48 @@ import '../widgets/login_form_section.dart';
 /// 2. Firebase email/password login (authenticated mode)
 ///
 /// Screen is layout only. Provider consumption happens in section widgets.
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
+    ref.listen<AsyncValue<AuthState>>(
+      authStateNotifierProvider,
+      (previous, next) async {
+        // 성공적으로 인증된 경우만 반응
+        if (next.hasValue && next.value!.isAuthenticated == true) {
+          // 1. 마이그레이션 체크
+          await ref
+              .read(migrationStateNotifierProvider.notifier)
+              .checkMigrationNeeded();
+
+          final migrationState = ref.read(migrationStateNotifierProvider);
+
+          if (migrationState.isRequired) {
+            final shouldMigrate = await showDialog<bool>(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => const MigrationDialog(),
+            );
+
+            if (shouldMigrate == true) {
+              await ref
+                  .read(migrationStateNotifierProvider.notifier)
+                  .executeMigration();
+            } else {
+              ref.read(migrationStateNotifierProvider.notifier).skipMigration();
+            }
+          }
+
+          // // 2. 최종 라우팅
+          // if (context.mounted) {
+          //   context.go(AppRoutes.projectSelection);
+          // }
+        }
+      },
+    );
 
     return Scaffold(
       body: SafeArea(
