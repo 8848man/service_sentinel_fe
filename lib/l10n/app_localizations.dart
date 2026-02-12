@@ -302,6 +302,12 @@ abstract class AppLocalizations {
   /// **'Sign in with Email'**
   String get auth_sign_in_email;
 
+  /// No description provided for @auth_sign_in_google.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Google Email'**
+  String get auth_sign_in_google;
+
   /// No description provided for @auth_sign_in_desc.
   ///
   /// In en, this message translates to:
@@ -1580,6 +1586,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Signed out successfully'**
   String get settings_signed_out;
+
+  /// No description provided for @settings_delete_account.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account'**
+  String get settings_delete_account;
+
+  /// No description provided for @settings_delete_account_confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this account and included informations?'**
+  String get settings_delete_account_confirmation;
+
+  /// No description provided for @settings_deleted_account.
+  ///
+  /// In en, this message translates to:
+  /// **'your account deleted successfully'**
+  String get settings_deleted_account;
 
   /// No description provided for @settings_api_key.
   ///

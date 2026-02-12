@@ -1,9 +1,9 @@
-import '../../../../core/error/result.dart';
+import '../../../error/result.dart';
 import '../entities/user.dart';
 
 /// Authentication repository interface
 /// Abstracts Firebase Auth implementation
-abstract class AuthRepository {
+abstract class IAuthRepository {
   /// Get current authenticated user
   /// Returns GuestUser if not authenticated
   Future<Result<User>> getCurrentUser();
@@ -30,4 +30,8 @@ abstract class AuthRepository {
   /// Returns null if user is not authenticated
   /// forceRefresh: Forces token refresh if true
   Future<String?> getIdToken({bool forceRefresh = false});
+
+  Future<Result<User>> signInWithGoogle();
+
+  Future<void> deleteAccount();
 }

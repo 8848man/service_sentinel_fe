@@ -1,10 +1,12 @@
+import 'package:flutter/foundation.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:service_sentinel_fe_v2/core/router/app_router.dart';
-import '../../../../core/storage/secure_storage.dart';
-import '../../../../core/di/repository_providers.dart';
-import '../../../../core/state/project_session_notifier.dart';
-import '../../domain/entities/auth_state.dart';
-import '../../domain/entities/user.dart';
+import '../../storage/secure_storage.dart';
+import '../../di/repository_providers.dart';
+import '../../state/project_session_notifier.dart';
+import '../domain/entities/auth_state.dart';
+import '../domain/entities/user.dart';
 
 part 'auth_provider.g.dart';
 
@@ -34,6 +36,28 @@ class AuthStateNotifier extends _$AuthStateNotifier {
     }
 
     return AuthState.guest();
+  }
+
+  Future<void> signInWithGoogle() async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final authRepo = ref.read(authRepositoryProvider);
+
+      final result = await authRepo.signInWithGoogle();
+      if (!result.isSuccess) {
+        throw result.errorOrNull!;
+      }
+
+      ref.read(goRouterProvider).go(AppRoutes.projectSelection);
+
+      final secureStorage = ref.read(secureStorageProvider);
+      final projectId = await secureStorage.getCurrentProjectId();
+
+      return AuthState.authenticated(
+        user: result.dataOrNull!,
+        currentProjectId: projectId,
+      );
+    });
   }
 
   /// Sign in with email and password
@@ -86,6 +110,28 @@ class AuthStateNotifier extends _$AuthStateNotifier {
     state = await AsyncValue.guard(() async {
       final authRepo = ref.read(authRepositoryProvider);
       await authRepo.signOut();
+
+      // 모바일 signout처리
+      if (!kIsWeb) {
+        await GoogleSignIn().signOut();
+      }
+      // Clear project session (includes API keys)
+      await ref.read(projectSessionProvider.notifier).clear();
+
+      // Clear stored project ID
+      final secureStorage = ref.read(secureStorageProvider);
+      await secureStorage.deleteCurrentProjectId();
+
+      return AuthState.guest();
+    });
+  }
+
+  /// delete Account
+  Future<void> deleteAccount() async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final authRepo = ref.read(authRepositoryProvider);
+      await authRepo.deleteAccount();
 
       // Clear project session (includes API keys)
       await ref.read(projectSessionProvider.notifier).clear();

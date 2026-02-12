@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/state/project_session_notifier.dart';
-import '../../../auth/application/providers/auth_provider.dart';
+import '../../../extensions/context_extensions.dart';
+import '../../../state/project_session_notifier.dart';
+import '../../../auth/providers/auth_provider.dart';
 
 /// API Key settings section - Manage API keys for authenticated users
 /// Consumes: authStateNotifierProvider, projectSessionProvider

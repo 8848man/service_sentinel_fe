@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/extensions/context_extensions.dart';
-import '../../../../core/l10n/locale_provider.dart';
-import '../../../../core/router/app_router.dart';
-import '../../../../core/state/project_session_notifier.dart';
-import '../../../../core/theme/app_theme_mode.dart';
-import '../../../../core/theme/theme_provider.dart';
-import '../../../auth/application/providers/auth_provider.dart';
+import '../../../extensions/context_extensions.dart';
+import '../../../l10n/locale_provider.dart';
+import '../../../router/app_router.dart';
+import '../../../state/project_session_notifier.dart';
+import '../../../theme/app_theme_mode.dart';
+import '../../../theme/theme_provider.dart';
+import '../../../auth/providers/auth_provider.dart';
 import '../widgets/api_key_settings_section.dart';
 
 /// Settings screen - App settings and preferences
@@ -32,9 +32,9 @@ class SettingsScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // General settings section
-              _GeneralSettingsSection(),
+              // _GeneralSettingsSection(),
 
-              SizedBox(height: 24),
+              // SizedBox(height: 24),
 
               // Project section (show current project and change button)
               _ProjectSection(),
@@ -44,10 +44,10 @@ class SettingsScreen extends StatelessWidget {
               // API Key settings section (authenticated only)
               ApiKeySettingsSection(),
 
-              SizedBox(height: 24),
+              // SizedBox(height: 24),
 
-              // Account section
-              _AccountSection(),
+              // // Account section
+              // _AccountSection(),
             ],
           ),
         ),
@@ -329,6 +329,16 @@ class _AccountSection extends ConsumerWidget {
                   ),
                   onTap: () => _handleLogout(context, ref),
                 ),
+
+                // Logout button
+                ListTile(
+                  leading: Icon(Icons.delete, color: theme.colorScheme.error),
+                  title: Text(
+                    l10n.settings_delete_account,
+                    style: TextStyle(color: theme.colorScheme.error),
+                  ),
+                  onTap: () => _handleDeleteAccount(context, ref),
+                ),
               ],
             ),
           ),
@@ -369,13 +379,6 @@ class _AccountSection extends ConsumerWidget {
 
     if (confirmed != true || !context.mounted) return;
 
-    // Show loading
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
-    );
-
     // Sign out
     await ref.read(authStateNotifierProvider.notifier).signOut();
 
@@ -390,6 +393,53 @@ class _AccountSection extends ConsumerWidget {
     // Show success message
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(l10n.settings_signed_out)),
+    );
+  }
+
+  /// Handle logout with confirmation
+  Future<void> _handleDeleteAccount(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.settings_delete_account),
+        content: Text(l10n.settings_delete_account_confirmation),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.common_cancel),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              ref.read(authStateNotifierProvider.notifier).deleteAccount();
+              context.go(AppRoutes.login);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(dialogContext).colorScheme.error,
+              foregroundColor: Colors.white,
+            ),
+            child: Text(l10n.settings_delete_account),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    // Sign out
+    // await ref.read(authStateNotifierProvider.notifier).deleteAccount();
+
+    // if (!context.mounted) return;
+
+    // Close loading dialog
+    Navigator.of(context).pop();
+
+    // Navigate to login screen
+    context.go(AppRoutes.login);
+
+    // Show success message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.settings_delete_account)),
     );
   }
 }

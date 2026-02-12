@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:service_sentinel_fe_v2/core/state/project_session_notifier.dart';
-import 'package:service_sentinel_fe_v2/features/auth/infrastructure/repositories/firebase_auth_repository.dart';
+import 'package:service_sentinel_fe_v2/core/auth/repositories/auth_repository.dart';
 
 import '../../features/api_monitoring/domain/repositories/service_repository.dart';
 import '../../features/dashboard/domain/repositories/dashboard_repository.dart'
@@ -12,7 +12,7 @@ import '../../features/dashboard/infrastructure/repositories/dashboard_repositor
 import '../../features/api_monitoring/infrastructure/data_sources/local_service_data_source_impl.dart';
 import '../../features/api_monitoring/infrastructure/data_sources/remote_service_data_source_impl.dart';
 import '../../features/api_monitoring/infrastructure/repositories/service_repository_impl.dart';
-import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../auth/domain/repositories/auth_repository.dart';
 import '../../features/incident/domain/repositories/incident_repository.dart';
 import '../../features/incident/infrastructure/data_sources/local_incident_data_source_impl.dart';
 import '../../features/incident/infrastructure/data_sources/remote_incident_data_source_impl.dart';
@@ -54,7 +54,8 @@ import 'providers.dart';
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   final firebaseAuth = ref.watch(firebaseAuthProvider);
-  return FirebaseAuthRepository(firebaseAuth);
+  final dio = ref.watch(dioClientProvider).dio;
+  return AuthRepository(firebaseAuth, dio);
 });
 // ============================================================================
 // BOOTSTRAP REPOSITORY
