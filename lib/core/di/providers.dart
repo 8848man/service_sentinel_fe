@@ -13,22 +13,14 @@ import '../infrastructure/guest_api_key_service.dart';
 //   return fb.FirebaseAuth.instance;
 // });
 
-// Auth 전용 FirebaseApp
-final authFirebaseAppProvider = Provider<FirebaseApp>((ref) {
-  return Firebase.app('lattui-auth');
-});
-
-// Firebase Auth (lattui-auth 프로젝트 사용)
 final firebaseAuthProvider = Provider<fb.FirebaseAuth>((ref) {
-  final authApp = ref.watch(authFirebaseAppProvider);
-  return fb.FirebaseAuth.instanceFor(app: authApp);
+  return fb.FirebaseAuth.instance;
 });
 
 /// SharedPreferences provider
 /// Required for GuestIdentificationService persistence
-final sharedPreferencesProvider =
-    FutureProvider<SharedPreferences>((ref) async {
-  return await SharedPreferences.getInstance();
+final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
+  throw UnimplementedError();
 });
 
 /// Guest API Key Service provider
@@ -36,24 +28,10 @@ final sharedPreferencesProvider =
 /// Keys are obtained from bootstrap endpoint, not generated client-side
 final guestApiKeyServiceProvider = Provider<GuestApiKeyService>((ref) {
   final prefsAsync = ref.watch(sharedPreferencesProvider);
-
-  // Handle async SharedPreferences
-  return prefsAsync.when(
-    data: (prefs) {
-      final service = GuestApiKeyService(prefs);
-      // Pre-load guest key on initialization (safe - only reads from storage)
-      service.preloadGuestKey();
-      return service;
-    },
-    loading: () {
-      // Return a temporary service while loading
-      // This should rarely happen as SharedPreferences loads quickly
-      throw StateError('SharedPreferences not yet loaded');
-    },
-    error: (error, stack) {
-      throw StateError('Failed to initialize SharedPreferences: $error');
-    },
-  );
+  final service = GuestApiKeyService(prefsAsync)
+    // Pre-load guest key on initialization (safe - only reads from storage)
+    ..preloadGuestKey();
+  return service;
 });
 
 /// Global DioClient provider

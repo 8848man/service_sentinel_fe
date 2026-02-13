@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/enums.dart';
-import '../../../auth/application/providers/auth_provider.dart';
+import '../../../../core/auth/providers/auth_provider.dart';
 
 /// Project header section - Shows user info and current mode
 /// Consumes: authStateNotifierProvider
@@ -88,7 +88,8 @@ class ProjectHeaderSection extends ConsumerWidget {
     );
   }
 
-  Widget _buildSourceOfTruthBadge(ThemeData theme, SourceOfTruth sourceOfTruth) {
+  Widget _buildSourceOfTruthBadge(
+      ThemeData theme, SourceOfTruth sourceOfTruth) {
     final isLocal = sourceOfTruth == SourceOfTruth.local;
 
     return Container(

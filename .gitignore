@@ -61,3 +61,4 @@ google-services.json
 GoogleService-Info.plist
 firebase_options.dart
 firebase_options_auth.dart
+firebase.json

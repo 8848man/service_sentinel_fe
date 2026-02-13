@@ -112,6 +112,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auth_sign_in_email => 'Sign in with Email';
 
   @override
+  String get auth_sign_in_google => 'Sign in with Google Email';
+
+  @override
   String get auth_sign_in_desc =>
       'Access your projects from any device with cloud sync.';
 
@@ -820,6 +823,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settings_signed_out => 'Signed out successfully';
+
+  @override
+  String get settings_delete_account => 'Delete Account';
+
+  @override
+  String get settings_delete_account_confirmation =>
+      'Are you sure you want to delete this account and included informations?';
+
+  @override
+  String get settings_deleted_account => 'your account deleted successfully';
 
   @override
   String get settings_api_key => 'API Key';

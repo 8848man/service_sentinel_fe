@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:service_sentinel_fe_v2/core/router/app_router.dart';
+import 'package:service_sentinel_fe_v2/core/settings/presentation/screens/common_settings_screen.dart';
+
 import '../../../../core/extensions/context_extensions.dart';
-import '../../../auth/application/providers/auth_provider.dart';
+import '../../../../core/auth/providers/auth_provider.dart';
 import '../widgets/project_list_section.dart';
 import '../widgets/project_header_section.dart';
 
@@ -30,6 +32,16 @@ class ProjectSelectionScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(l10n.app_title),
         actions: [
+          IconButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (dialogContext) =>
+                    Dialog(child: const CommonSettingsScreen()),
+              );
+            },
+            icon: const Icon(Icons.settings),
+          ),
           // Logout action (ConsumerWidget)
           Consumer(
             builder: (context, ref, child) {

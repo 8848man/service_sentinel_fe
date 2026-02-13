@@ -111,6 +111,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get auth_sign_in_email => '이메일로 로그인';
 
   @override
+  String get auth_sign_in_google => '구글 계정으로 로그인';
+
+  @override
   String get auth_sign_in_desc => '클라우드 동기화로 모든 기기에서 프로젝트에 액세스하세요.';
 
   @override
@@ -796,6 +799,16 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get settings_signed_out => '성공적으로 로그아웃되었습니다';
+
+  @override
+  String get settings_delete_account => '계정 삭제';
+
+  @override
+  String get settings_delete_account_confirmation =>
+      '정말로 이 계정과 해당하는 정보를 삭제하시겠습니까?';
+
+  @override
+  String get settings_deleted_account => '계정이 삭제되었습니다.';
 
   @override
   String get settings_api_key => 'API 키';

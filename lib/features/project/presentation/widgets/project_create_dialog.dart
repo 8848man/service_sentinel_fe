@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/di/providers.dart';
 import '../../../../core/error/app_error.dart';
 import '../../../../core/extensions/context_extensions.dart';
-import '../../../auth/application/providers/auth_provider.dart';
+import '../../../../core/auth/providers/auth_provider.dart';
 import '../../application/providers/bootstrap_provider.dart';
 import '../../application/providers/project_provider.dart';
 import '../../domain/entities/bootstrap.dart';
@@ -72,7 +72,7 @@ class _ProjectCreateDialogState extends ConsumerState<ProjectCreateDialog> {
       createdProject = await _createProjectAuthenticated(name, description);
     } else {
       // Guest user: Check if bootstrap is needed
-      final guestApiKeyService = ref.read(guestApiKeyServiceProvider);
+      final guestApiKeyService = ref.watch(guestApiKeyServiceProvider);
       final hasGuestKey = guestApiKeyService.hasGuestKey();
 
       if (!hasGuestKey) {

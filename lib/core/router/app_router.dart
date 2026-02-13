@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:service_sentinel_fe_v2/core/di/providers.dart';
 import 'package:service_sentinel_fe_v2/core/state/project_session_notifier.dart';
 import '../../features/analysis/presentation/screens/analysis_overview_screen.dart';
 import '../../features/api_monitoring/presentation/screens/service_detail_screen.dart';
@@ -13,7 +14,7 @@ import '../../features/incident/presentation/screens/incident_detail_screen.dart
 import '../../features/incident/presentation/screens/incidents_screen.dart';
 import '../../features/project/presentation/screens/project_detail_screen.dart';
 import '../../features/project/presentation/screens/project_selection_screen.dart';
-import '../../features/settings/presentation/screens/settings_screen.dart';
+import '../settings/presentation/screens/settings_screen.dart';
 import '../navigation/main_scaffold.dart';
 
 /// Route names
@@ -42,13 +43,21 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final location = state.matchedLocation;
       final projectId = ref.read(projectSessionProvider).projectId;
+      final firebaseAuth = ref.read(firebaseAuthProvider);
+      final user = firebaseAuth.currentUser;
+      final isInMainShell = location.startsWith('/main');
 
-      final isInShell = location.startsWith('/main');
-
-      if (isInShell && projectId == null) {
+      // 프로젝트가 없는데 프로젝트 main 페이지로 진입시 프로젝트 선택 페이지로
+      if (isInMainShell && projectId == null) {
         return AppRoutes.projectSelection;
       }
 
+      // 로그인 되어있을 때, login 페이지 진입시 프로젝트 선택 페이지로 이동
+      final isInLoginShell = location.startsWith('/login');
+
+      if (isInLoginShell && user != null) {
+        return AppRoutes.projectSelection; // 이미 로그인되어 있으면 메인으로 보내기
+      }
       return null;
     },
     routes: [
